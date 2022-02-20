@@ -1,4 +1,4 @@
-package edu.utd.dc.project0.algo.impl;
+package edu.utd.dc.project0.algo.impl.floodmax;
 
 import edu.utd.dc.project0.algo.RBAAlgo;
 
