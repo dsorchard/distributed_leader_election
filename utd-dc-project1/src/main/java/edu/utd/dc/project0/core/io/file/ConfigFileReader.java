@@ -84,6 +84,21 @@ public class ConfigFileReader {
     return processIdList;
   }
 
+  @Override
+  public String toString() {
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("Size: ").append(getSize());
+    getAdjList()
+        .forEach(
+            (k, v) -> {
+              sb.append(k).append(" -- ");
+              for (Integer processId : v) sb.append(processId).append(", ");
+              sb.append("\n");
+            });
+    return sb.toString();
+  }
+
   private void log(LogLevel logLevel, String message) {
     if (logLevel.getValue() >= GlobalConstants.LOG_LEVEL.getValue()) System.out.println(message);
   }

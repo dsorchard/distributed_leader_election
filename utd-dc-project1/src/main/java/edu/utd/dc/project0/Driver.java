@@ -1,5 +1,6 @@
 package edu.utd.dc.project0;
 
+import edu.utd.dc.project0.algo.impl.FloodMaxAlgo;
 import edu.utd.dc.project0.constants.GlobalConstants;
 import edu.utd.dc.project0.constants.LogLevel;
 import edu.utd.dc.project0.core.Process;
@@ -11,13 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 public class Driver {
+  static String configFileName =
+      "/Users/xvamp/Library/CloudStorage/OneDrive-TheUniversityofTexasatDallas/arjun_mbp/workspace/sem2/DC/utd-dc-projects/utd-dc-project1/src/main/resources/inputdata.txt";
 
   public static void main(String[] args) {
-    ConfigFileReader configFileReader =
-        new ConfigFileReader(
-            "/Users/xvamp/Library/CloudStorage/OneDrive-TheUniversityofTexasatDallas/arjun_mbp/workspace/sem2/DC/utd-dc-projects/utd-dc-project1/src/main/resources/inputdata.txt");
 
-    prettyPrintConfig(configFileReader);
+    ConfigFileReader configFileReader = new ConfigFileReader(configFileName);
+    log(LogLevel.DEBUG, configFileReader.toString());
 
     int n = configFileReader.getSize();
     Process[] processes = initProcesses(configFileReader);
@@ -41,7 +42,7 @@ public class Driver {
 
       // Ask processes to start their rounds
       for (Process process : processes) {
-        // process.setCanStartRound(true);
+        process.algo.setCanStartNextRound(true);
       }
     }
   }
@@ -57,7 +58,7 @@ public class Driver {
     Process[] processes = new Process[n];
     for (int i = 0; i < n; i++) {
       ProcessId processId = configFileReader.getProcessIdList().get(i);
-      processes[i] = new Process(processId);
+      processes[i] = new Process(processId, new FloodMaxAlgo(processId.getID()));
     }
 
     for (Map.Entry<Integer, List<Integer>> entry : configFileReader.getAdjList().entrySet()) {
@@ -67,22 +68,6 @@ public class Driver {
     }
 
     return processes;
-  }
-
-  private static void prettyPrintConfig(ConfigFileReader configFileReader) {
-
-    System.out.println(configFileReader.getSize());
-
-    configFileReader
-        .getAdjList()
-        .forEach(
-            (k, v) -> {
-              System.out.print(k + " -- ");
-
-              for (Integer processId : v) System.out.print(processId + ", ");
-
-              System.out.print("\n");
-            });
   }
 
   private static void log(LogLevel logLevel, String message) {
