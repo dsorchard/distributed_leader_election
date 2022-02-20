@@ -1,3 +1,3 @@
 ## Distributed Computing Projects
 
-## Project 1: Flood Max
+### Project 1: Flood Max
