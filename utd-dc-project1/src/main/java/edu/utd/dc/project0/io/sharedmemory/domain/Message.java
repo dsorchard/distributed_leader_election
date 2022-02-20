@@ -4,6 +4,7 @@ import edu.utd.dc.project0.core.support.ProcessId;
 
 public class Message {
   public ProcessId source;
+  public ProcessId destination;
 
   public Object data;
 

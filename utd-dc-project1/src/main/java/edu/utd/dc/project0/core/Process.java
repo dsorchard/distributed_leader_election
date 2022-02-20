@@ -1,33 +1,46 @@
 package edu.utd.dc.project0.core;
 
 import edu.utd.dc.project0.core.support.ProcessId;
-import edu.utd.dc.project0.io.sharedmemory.Channel;
-import edu.utd.dc.project0.io.sharedmemory.Listener;
+import edu.utd.dc.project0.io.sharedmemory.Observer;
+import edu.utd.dc.project0.io.sharedmemory.SharedMemoryBus;
 import edu.utd.dc.project0.io.sharedmemory.domain.Message;
 
-import java.util.ArrayList;
-import java.util.List;
+public class Process implements Runnable, Observer {
 
-public class Process implements Runnable {
+  public ProcessId processId;
+  public boolean canStartRound;
+  public boolean isTerminated;
 
-  public ProcessId myId;
-  public List<Channel> neighbours;
-  public Listener listener;
+  public Process(ProcessId processId) {
+    this.processId = processId;
 
-  public Process(ProcessId myId, Listener listener) {
-    this.myId = myId;
-    this.listener = listener;
-    this.neighbours = new ArrayList<>();
+    this.canStartRound = false;
+    this.isTerminated = false;
   }
 
   @Override
-  public void run() {}
+  public void run() {
 
-  public void send(ProcessId destination, Message message) {}
+    while (!isTerminated) {
+      if (canStartRound) nextRound();
+      canStartRound = false;
+    }
+  }
 
+  private void nextRound() {}
+
+  public void send(ProcessId destinationId, Message message) {
+    SharedMemoryBus.send(null, message);
+  }
+
+  @Override
   public void onReceive(Message message) {}
 
-  public void addNeighbour(Process process) {
-    neighbours.add(new Channel(process));
+  public void addNeighbour(Process neighbourProcess) {
+    SharedMemoryBus.register(processId, neighbourProcess.processId, neighbourProcess);
+  }
+
+  public void setCanStartRound(boolean canStartRound) {
+    this.canStartRound = canStartRound;
   }
 }
