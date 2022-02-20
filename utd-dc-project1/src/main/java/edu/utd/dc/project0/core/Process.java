@@ -1,11 +1,11 @@
 package edu.utd.dc.project0.core;
 
 import edu.utd.dc.project0.core.support.ProcessId;
-import edu.utd.dc.project0.io.sharedmemory.Observer;
+import edu.utd.dc.project0.io.sharedmemory.Listener;
 import edu.utd.dc.project0.io.sharedmemory.SharedMemoryBus;
 import edu.utd.dc.project0.io.sharedmemory.domain.Message;
 
-public class Process implements Runnable, Observer {
+public class Process implements Runnable, Listener {
 
   public ProcessId processId;
   public boolean canStartRound;

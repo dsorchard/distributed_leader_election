@@ -12,9 +12,9 @@ public final class SharedMemoryBus {
 
   public static Map<ProcessId, List<Destination>> list = new LinkedHashMap<>();
 
-  public static void register(ProcessId source, ProcessId destination, Observer observer) {
+  public static void register(ProcessId source, ProcessId destination, Listener listener) {
     list.putIfAbsent(source, new ArrayList<>());
-    list.get(source).add(new Destination(destination, observer));
+    list.get(source).add(new Destination(destination, listener));
   }
 
   public static void send(ProcessId destinationId, Message message) {
@@ -26,9 +26,9 @@ public final class SharedMemoryBus {
 
   static class Destination {
     ProcessId destinationId;
-    Observer client;
+    Listener client;
 
-    public Destination(ProcessId destinationId, Observer client) {
+    public Destination(ProcessId destinationId, Listener client) {
       this.destinationId = destinationId;
       this.client = client;
     }
