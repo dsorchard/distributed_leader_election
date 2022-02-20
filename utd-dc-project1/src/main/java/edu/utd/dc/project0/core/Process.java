@@ -1,6 +1,6 @@
 package edu.utd.dc.project0.core;
 
-import edu.utd.dc.project0.algo.RBAAlgo;
+import edu.utd.dc.project0.algo.RbaAlgo;
 import edu.utd.dc.project0.core.io.sharedmemory.Listener;
 import edu.utd.dc.project0.core.io.sharedmemory.SharedMemoryBus;
 import edu.utd.dc.project0.core.io.sharedmemory.domain.Message;
@@ -9,9 +9,9 @@ import edu.utd.dc.project0.core.support.ProcessId;
 public class Process implements Runnable, Listener {
 
   public ProcessId processId;
-  public RBAAlgo algo;
+  public RbaAlgo algo;
 
-  public Process(ProcessId processId, RBAAlgo algo) {
+  public Process(ProcessId processId, RbaAlgo algo) {
     this.processId = processId;
     this.algo = algo;
   }

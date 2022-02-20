@@ -1,6 +1,6 @@
 package edu.utd.dc.project0;
 
-import edu.utd.dc.project0.algo.impl.floodmax.ElectLeaderDriver;
+import edu.utd.dc.project0.algo.impl.floodmax.LeaderElectionDriver;
 import edu.utd.dc.project0.core.io.file.ConfigFileReader;
 
 public class Driver {
@@ -11,8 +11,8 @@ public class Driver {
 
     ConfigFileReader configFileReader = new ConfigFileReader(configFileName);
 
-    ElectLeaderDriver electLeaderDriver = new ElectLeaderDriver(configFileReader);
-    int leaderId = electLeaderDriver.electLeader();
+    LeaderElectionDriver leaderElectionDriver = new LeaderElectionDriver(configFileReader);
+    int leaderId = leaderElectionDriver.electLeader();
     System.out.println(leaderId);
   }
 }

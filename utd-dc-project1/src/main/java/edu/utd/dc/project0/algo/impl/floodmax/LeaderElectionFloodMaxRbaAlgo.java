@@ -1,15 +1,15 @@
 package edu.utd.dc.project0.algo.impl.floodmax;
 
-import edu.utd.dc.project0.algo.RBAAlgo;
+import edu.utd.dc.project0.algo.RbaAlgo;
 
-public class FloodMaxAlgo implements RBAAlgo {
+public class LeaderElectionFloodMaxRbaAlgo implements RbaAlgo {
 
   public boolean canStartRound;
   public boolean isTerminated;
 
   public int maxId;
 
-  public FloodMaxAlgo(int maxId) {
+  public LeaderElectionFloodMaxRbaAlgo(int maxId) {
     this.isTerminated = false;
     this.canStartRound = false;
     this.maxId = maxId;

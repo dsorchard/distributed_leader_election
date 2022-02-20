@@ -10,11 +10,11 @@ import edu.utd.dc.project0.utils.TimeUtils;
 import java.util.List;
 import java.util.Map;
 
-public class ElectLeaderDriver {
+public class LeaderElectionDriver {
 
   private final ConfigFileReader configFileReader;
 
-  public ElectLeaderDriver(ConfigFileReader configFileReader) {
+  public LeaderElectionDriver(ConfigFileReader configFileReader) {
     this.configFileReader = configFileReader;
   }
 
@@ -61,7 +61,7 @@ public class ElectLeaderDriver {
     Process[] processes = new Process[n];
     for (int i = 0; i < n; i++) {
       ProcessId processId = configFileReader.getProcessIdList().get(i);
-      processes[i] = new Process(processId, new FloodMaxAlgo(processId.getID()));
+      processes[i] = new Process(processId, new LeaderElectionFloodMaxRbaAlgo(processId.getID()));
     }
 
     for (Map.Entry<Integer, List<Integer>> entry : configFileReader.getAdjList().entrySet()) {
