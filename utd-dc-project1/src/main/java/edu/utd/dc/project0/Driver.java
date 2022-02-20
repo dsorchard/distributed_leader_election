@@ -3,8 +3,8 @@ package edu.utd.dc.project0;
 import edu.utd.dc.project0.constants.GlobalConstants;
 import edu.utd.dc.project0.constants.LogLevel;
 import edu.utd.dc.project0.core.Process;
+import edu.utd.dc.project0.core.io.file.ConfigFileReader;
 import edu.utd.dc.project0.core.support.ProcessId;
-import edu.utd.dc.project0.io.file.ConfigFileReader;
 import edu.utd.dc.project0.utils.TimeUtils;
 
 import java.util.List;
@@ -40,7 +40,9 @@ public class Driver {
       }
 
       // Ask processes to start their rounds
-      for (Process process : processes) process.setCanStartRound(true);
+      for (Process process : processes) {
+        // process.setCanStartRound(true);
+      }
     }
   }
 

@@ -1,7 +1,7 @@
-package edu.utd.dc.project0.io.sharedmemory;
+package edu.utd.dc.project0.core.io.sharedmemory;
 
+import edu.utd.dc.project0.core.io.sharedmemory.domain.Message;
 import edu.utd.dc.project0.core.support.ProcessId;
-import edu.utd.dc.project0.io.sharedmemory.domain.Message;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -18,7 +18,7 @@ public final class SharedMemoryBus {
   }
 
   public static void send(ProcessId destinationId, Message message) {
-    ProcessId sourceId = message.source;
+    ProcessId sourceId = message._source;
 
     for (Destination destination : list.get(sourceId))
       if (destination.destinationId == destinationId) destination.client.onReceive(message);
