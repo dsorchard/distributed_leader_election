@@ -1,8 +1,7 @@
-package edu.utd.dc.project0.algo.impl.floodmax;
+package edu.utd.dc.project0.algo.leaderelection.floodmax;
 
 import edu.utd.dc.project0.constants.GlobalConstants;
 import edu.utd.dc.project0.constants.LogLevel;
-import edu.utd.dc.project0.core.Process;
 import edu.utd.dc.project0.core.io.file.ConfigFileReader;
 import edu.utd.dc.project0.core.support.ProcessId;
 import edu.utd.dc.project0.utils.TimeUtils;
@@ -10,11 +9,11 @@ import edu.utd.dc.project0.utils.TimeUtils;
 import java.util.List;
 import java.util.Map;
 
-public class LeaderElectionDriver {
+public class FloodMaxLeaderElectionManager {
 
   private final ConfigFileReader configFileReader;
 
-  public LeaderElectionDriver(ConfigFileReader configFileReader) {
+  public FloodMaxLeaderElectionManager(ConfigFileReader configFileReader) {
     this.configFileReader = configFileReader;
   }
 
@@ -22,12 +21,12 @@ public class LeaderElectionDriver {
     log(LogLevel.DEBUG, configFileReader.toString());
 
     int n = configFileReader.getSize();
-    Process[] processes = initProcesses(configFileReader);
+    FloodMaxLeaderElectionProcess[] floodMaxProcesses = initProcesses(configFileReader);
 
     // Start n threads
     Thread[] threads = new Thread[n];
     for (int i = 0; i < threads.length; i++) {
-      threads[i] = new Thread(processes[i]);
+      threads[i] = new Thread(floodMaxProcesses[i]);
       threads[i].start();
     }
 
@@ -36,41 +35,41 @@ public class LeaderElectionDriver {
       TimeUtils.sleep(5_000);
 
       // Termination check, if no threads are alive, then terminate
-      if (!isAnyThreadAlive(threads)) {
+      if (isAllThreadsDead(threads)) {
         log(LogLevel.INFO, "Leader Election completed");
         break;
       }
 
       // Ask processes to start their rounds
-      for (Process process : processes) {
-        process.algo.setCanStartNextRound(true);
+      for (FloodMaxLeaderElectionProcess process : floodMaxProcesses) {
+        process.enableNextRound();
       }
     }
 
     return 0;
   }
 
-  private boolean isAnyThreadAlive(Thread[] threads) {
-    for (Thread thread : threads) if (thread.isAlive()) return true;
-    return false;
+  private boolean isAllThreadsDead(Thread[] threads) {
+    for (Thread thread : threads) if (thread.isAlive()) return false;
+    return true;
   }
 
-  private Process[] initProcesses(ConfigFileReader configFileReader) {
+  private FloodMaxLeaderElectionProcess[] initProcesses(ConfigFileReader configFileReader) {
     int n = configFileReader.getSize();
 
-    Process[] processes = new Process[n];
+    FloodMaxLeaderElectionProcess[] floodMaxProcesses = new FloodMaxLeaderElectionProcess[n];
     for (int i = 0; i < n; i++) {
       ProcessId processId = configFileReader.getProcessIdList().get(i);
-      processes[i] = new Process(processId, new LeaderElectionFloodMaxRbaAlgo(processId.getID()));
+      floodMaxProcesses[i] = new FloodMaxLeaderElectionProcess(processId);
     }
 
     for (Map.Entry<Integer, List<Integer>> entry : configFileReader.getAdjList().entrySet()) {
       Integer nodeIdx = entry.getKey();
       for (Integer neighbourIdx : entry.getValue())
-        processes[nodeIdx].addNeighbour(processes[neighbourIdx]);
+        floodMaxProcesses[nodeIdx].addNeighbour(floodMaxProcesses[neighbourIdx]);
     }
 
-    return processes;
+    return floodMaxProcesses;
   }
 
   private void log(LogLevel logLevel, String message) {

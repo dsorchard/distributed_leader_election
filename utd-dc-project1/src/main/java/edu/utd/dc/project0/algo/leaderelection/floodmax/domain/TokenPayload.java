@@ -1,4 +1,4 @@
-package edu.utd.dc.project0.algo.impl.floodmax.domain;
+package edu.utd.dc.project0.algo.leaderelection.floodmax.domain;
 
 public class TokenPayload {
   public int maxId;

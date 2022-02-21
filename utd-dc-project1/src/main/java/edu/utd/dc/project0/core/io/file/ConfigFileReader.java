@@ -88,7 +88,7 @@ public class ConfigFileReader {
   public String toString() {
 
     StringBuilder sb = new StringBuilder();
-    sb.append("Size: ").append(getSize());
+    sb.append("Size: ").append(getSize()).append("\n");
     getAdjList()
         .forEach(
             (k, v) -> {

@@ -1,24 +1,21 @@
 package edu.utd.dc.project0.core;
 
-import edu.utd.dc.project0.algo.RbaAlgo;
 import edu.utd.dc.project0.core.io.sharedmemory.Listener;
 import edu.utd.dc.project0.core.io.sharedmemory.SharedMemoryBus;
 import edu.utd.dc.project0.core.io.sharedmemory.domain.Message;
 import edu.utd.dc.project0.core.support.ProcessId;
 
-public class Process implements Runnable, Listener {
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class Process implements Listener, Runnable {
 
   public ProcessId processId;
-  public RbaAlgo algo;
+  public List<ProcessId> neighbours;
 
-  public Process(ProcessId processId, RbaAlgo algo) {
+  public Process(ProcessId processId) {
+    this.neighbours = new ArrayList<>();
     this.processId = processId;
-    this.algo = algo;
-  }
-
-  @Override
-  public void run() {
-    this.algo.init();
   }
 
   public void send(ProcessId destinationId, Message message) {
@@ -26,9 +23,19 @@ public class Process implements Runnable, Listener {
   }
 
   @Override
-  public void onReceive(Message message) {}
+  public void run() {
+    init();
+  }
+
+  public abstract void init();
+
+  @Override
+  public void onReceive(Message message) {
+    System.out.println(message._source.getID() + " " + message.data.toString());
+  }
 
   public void addNeighbour(Process neighbourProcess) {
+    this.neighbours.add(neighbourProcess.processId);
     SharedMemoryBus.register(this.processId, neighbourProcess.processId, neighbourProcess);
   }
 }
