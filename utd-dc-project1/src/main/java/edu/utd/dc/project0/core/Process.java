@@ -14,6 +14,7 @@ import java.util.List;
  * <p>Uses Template pattern.
  */
 public abstract class Process implements Listener, Runnable {
+
   private final ProcessId processId;
   private final List<ProcessId> neighbours;
 
