@@ -8,7 +8,11 @@ import edu.utd.dc.project0.core.support.ProcessId;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Every algorithm node will extend this class and implement its functionality */
+/**
+ * Every algorithm node will extend this class and implement its functionality.
+ *
+ * <p>Uses Template pattern.
+ */
 public abstract class Process implements Listener, Runnable {
   private final ProcessId processId;
   private final List<ProcessId> neighbours;
