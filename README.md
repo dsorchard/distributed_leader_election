@@ -25,5 +25,5 @@ row has 1 or more indices (indicating its neighbors) separated by white spaces.
 - ~~Config Reader~~
 - ~~Driver Class for spinning up N Threads~~
 - ~~Process Class with send(), receive() etc.~~
-- Evaluate `Singleton` vs `Queue` message layer
+- Evaluate `Singleton` vs `Queue` message passing layer
 - `Node with Algo` vs `Algo with Node` node structure
