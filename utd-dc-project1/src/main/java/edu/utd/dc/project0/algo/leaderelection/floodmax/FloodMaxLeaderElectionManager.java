@@ -9,6 +9,10 @@ import edu.utd.dc.project0.utils.TimeUtils;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Responsible for : spinning up N Threads of AlgoProcess, Starting a new round and anounicing
+ * termination.
+ */
 public class FloodMaxLeaderElectionManager {
 
   private final ConfigFileReader configFileReader;
@@ -17,6 +21,11 @@ public class FloodMaxLeaderElectionManager {
     this.configFileReader = configFileReader;
   }
 
+  /**
+   * Return the max leaderId.
+   *
+   * @return max leader id.
+   */
   public int electLeader() {
     log(LogLevel.DEBUG, configFileReader.toString());
 
@@ -54,6 +63,12 @@ public class FloodMaxLeaderElectionManager {
     return true;
   }
 
+  /**
+   * Initializes all the N Threads required for the System.
+   *
+   * @param configFileReader config
+   * @return AlgoProcessArray[n]
+   */
   private FloodMaxLeaderElectionProcess[] initProcesses(ConfigFileReader configFileReader) {
     int n = configFileReader.getSize();
 
@@ -72,6 +87,7 @@ public class FloodMaxLeaderElectionManager {
     return floodMaxProcesses;
   }
 
+  /** Used for condition logging. Similar to Log4J. */
   private void log(LogLevel logLevel, String message) {
     if (logLevel.getValue() >= GlobalConstants.LOG_LEVEL.getValue()) System.out.println(message);
   }

@@ -2,13 +2,14 @@ package edu.utd.dc.project0.core.io.sharedmemory.domain;
 
 import edu.utd.dc.project0.core.support.ProcessId;
 
+/** Message is transferred along the network. Contains _source metadata and payload. */
 public class Message {
 
   public ProcessId _source;
-  public Object data;
+  public Object payload;
 
-  public Message(ProcessId source, Object data) {
+  public Message(ProcessId source, Object payload) {
     this._source = source;
-    this.data = data;
+    this.payload = payload;
   }
 }

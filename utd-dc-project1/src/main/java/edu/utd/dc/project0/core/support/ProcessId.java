@@ -1,6 +1,11 @@
 package edu.utd.dc.project0.core.support;
 
+/**
+ * At present, we only have id. But this could be further extended to have id + MAC Address to break
+ * the ties.
+ */
 public class ProcessId {
+
   private final int id;
 
   public ProcessId(int id) {

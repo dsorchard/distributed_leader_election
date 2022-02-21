@@ -8,6 +8,7 @@ import edu.utd.dc.project0.core.support.ProcessId;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Every algorithm node will extend this class and implement its functionality */
 public abstract class Process implements Listener, Runnable {
   private final ProcessId processId;
   private final List<ProcessId> neighbours;
@@ -44,7 +45,13 @@ public abstract class Process implements Listener, Runnable {
     return neighbours;
   }
 
+  /** This will usually contain an endless while loop with wait, to mimic server node. */
   public abstract void init();
 
+  /**
+   * Responsible for handling received message
+   *
+   * @param message Node Message
+   */
   public abstract void onReceivedMessage(Message message);
 }

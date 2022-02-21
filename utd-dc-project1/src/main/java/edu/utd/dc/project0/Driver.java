@@ -4,15 +4,18 @@ import edu.utd.dc.project0.algo.leaderelection.floodmax.FloodMaxLeaderElectionMa
 import edu.utd.dc.project0.core.io.file.ConfigFileReader;
 
 public class Driver {
-  static String configFileName =
-      "/Users/xvamp/Library/CloudStorage/OneDrive-TheUniversityofTexasatDallas/arjun_mbp/workspace/sem2/DC/utd-dc-projects/utd-dc-project1/src/main/resources/inputdata.txt";
 
   public static void main(String[] args) {
-
+    // Read Config
+    String configFileName = "utd-dc-project1/src/main/resources/inputdata.txt";
     ConfigFileReader configFileReader = new ConfigFileReader(configFileName);
 
-    FloodMaxLeaderElectionManager floodMaxLeaderElectionManager = new FloodMaxLeaderElectionManager(configFileReader);
+    // Run FloodMax Leader Election Driver
+    FloodMaxLeaderElectionManager floodMaxLeaderElectionManager =
+        new FloodMaxLeaderElectionManager(configFileReader);
     int leaderId = floodMaxLeaderElectionManager.electLeader();
+
+    // Print Leader
     System.out.println(leaderId);
   }
 }

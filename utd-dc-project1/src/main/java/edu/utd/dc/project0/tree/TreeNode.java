@@ -3,6 +3,11 @@ package edu.utd.dc.project0.tree;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This will maintain the BFS Tree in our network
+ *
+ * @param <T> you can pass ProcessId or Integer depending upon the context
+ */
 public class TreeNode<T> {
 
   public T parentId;
