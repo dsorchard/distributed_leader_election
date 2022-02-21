@@ -27,15 +27,17 @@ public abstract class Process implements Listener, Runnable {
     init();
   }
 
-  public abstract void init();
-
   @Override
   public void onReceive(Message message) {
-    System.out.println(message._source.getID() + " " + message.data.toString());
+    processReceivedMessage(message);
   }
 
   public void addNeighbour(Process neighbourProcess) {
     this.neighbours.add(neighbourProcess.processId);
     SharedMemoryBus.register(this.processId, neighbourProcess.processId, neighbourProcess);
   }
+
+  public abstract void init();
+
+  public abstract void processReceivedMessage(Message message);
 }

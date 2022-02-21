@@ -6,4 +6,9 @@ public class TokenPayload {
   public TokenPayload(int maxId) {
     this.maxId = maxId;
   }
+
+  @Override
+  public String toString() {
+    return "TokenPayload{" + "maxId=" + maxId + '}';
+  }
 }

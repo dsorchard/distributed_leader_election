@@ -36,6 +36,11 @@ public class FloodMaxLeaderElectionProcess extends Process {
     }
   }
 
+  @Override
+  public void processReceivedMessage(Message message) {
+    System.out.println(message._source.getID() + " " + message.data.toString());
+  }
+
   public void enableNextRound() {
     this.canStartRound = true;
     synchronized (this) {
