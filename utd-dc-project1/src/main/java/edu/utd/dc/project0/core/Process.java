@@ -9,9 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Process implements Listener, Runnable {
-
-  public ProcessId processId;
-  public List<ProcessId> neighbours;
+  private final ProcessId processId;
+  private final List<ProcessId> neighbours;
 
   public Process(ProcessId processId) {
     this.neighbours = new ArrayList<>();
@@ -29,7 +28,7 @@ public abstract class Process implements Listener, Runnable {
 
   @Override
   public void onReceive(Message message) {
-    processReceivedMessage(message);
+    onReceivedMessage(message);
   }
 
   public void addNeighbour(Process neighbourProcess) {
@@ -37,7 +36,15 @@ public abstract class Process implements Listener, Runnable {
     SharedMemoryBus.register(this.processId, neighbourProcess.processId, neighbourProcess);
   }
 
+  public ProcessId getProcessId() {
+    return processId;
+  }
+
+  public List<ProcessId> getNeighbours() {
+    return neighbours;
+  }
+
   public abstract void init();
 
-  public abstract void processReceivedMessage(Message message);
+  public abstract void onReceivedMessage(Message message);
 }
