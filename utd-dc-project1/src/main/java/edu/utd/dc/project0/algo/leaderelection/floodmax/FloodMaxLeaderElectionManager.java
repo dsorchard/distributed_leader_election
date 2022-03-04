@@ -41,7 +41,7 @@ public class FloodMaxLeaderElectionManager {
 
     while (true) {
 
-      TimeUtils.sleep(5_000);
+      TimeUtils.sleep(1_000);
 
       // Termination check, if no threads are alive, then terminate
       if (isAllThreadsDead(threads)) {
@@ -55,7 +55,7 @@ public class FloodMaxLeaderElectionManager {
       }
     }
 
-    return 0;
+    return floodMaxProcesses[0].getMaxId();
   }
 
   private boolean isAllThreadsDead(Thread[] threads) {

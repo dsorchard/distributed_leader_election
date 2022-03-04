@@ -53,6 +53,11 @@ public class FloodMaxLeaderElectionProcess extends Process {
     }
   }
 
+  // returns maxID
+  public int getMaxId() {
+    return this.maxId;
+  }
+
   /**
    * Invoked by the {@link FloodMaxLeaderElectionManager#electLeader()} after a fixed interval (Sync
    * Clock).
@@ -111,6 +116,7 @@ public class FloodMaxLeaderElectionProcess extends Process {
     this.rejectCount++;
 
     if (this.rejectCount == getNeighbours().size()) {
+      this.rejectCount = 0; // needed to reset count
       bfsTree.isLeaf = true;
       send(bfsTree.parentId, new Message(getProcessId(), new IAmDonePayload(maxId)));
     }
@@ -124,7 +130,10 @@ public class FloodMaxLeaderElectionProcess extends Process {
     // I am done is sent by its children
     this.bfsTree.children.add(source);
 
-    if (this.iAmDoneCount == getNeighbours().size()) terminate();
+    if (this.iAmDoneCount == getNeighbours().size()) {
+      this.iAmDoneCount = 0; // needed to reset count
+      terminate();
+    }
   }
 
   private synchronized void handleTerminateMessage(ProcessId source, TerminatePayload payload) {
