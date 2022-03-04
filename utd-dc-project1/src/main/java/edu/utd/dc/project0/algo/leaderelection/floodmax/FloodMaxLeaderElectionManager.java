@@ -30,7 +30,7 @@ public class FloodMaxLeaderElectionManager {
     log(LogLevel.DEBUG, configFileReader.toString());
 
     int n = configFileReader.getSize();
-    FloodMaxLeaderElectionProcess[] floodMaxProcesses = initProcesses(configFileReader);
+    FloodMaxLeaderElectionSyncActor[] floodMaxProcesses = initProcesses(configFileReader);
 
     // Start n threads
     Thread[] threads = new Thread[n];
@@ -50,7 +50,7 @@ public class FloodMaxLeaderElectionManager {
       }
 
       // Ask processes to start their rounds
-      for (FloodMaxLeaderElectionProcess process : floodMaxProcesses) {
+      for (FloodMaxLeaderElectionSyncActor process : floodMaxProcesses) {
         process.enableNextRound();
       }
     }
@@ -69,13 +69,13 @@ public class FloodMaxLeaderElectionManager {
    * @param configFileReader config
    * @return AlgoProcessArray[n]
    */
-  private FloodMaxLeaderElectionProcess[] initProcesses(ConfigFileReader configFileReader) {
+  private FloodMaxLeaderElectionSyncActor[] initProcesses(ConfigFileReader configFileReader) {
     int n = configFileReader.getSize();
 
-    FloodMaxLeaderElectionProcess[] floodMaxProcesses = new FloodMaxLeaderElectionProcess[n];
+    FloodMaxLeaderElectionSyncActor[] floodMaxProcesses = new FloodMaxLeaderElectionSyncActor[n];
     for (int i = 0; i < n; i++) {
       ProcessId processId = configFileReader.getProcessIdList().get(i);
-      floodMaxProcesses[i] = new FloodMaxLeaderElectionProcess(processId);
+      floodMaxProcesses[i] = new FloodMaxLeaderElectionSyncActor(processId);
     }
 
     for (Map.Entry<Integer, List<Integer>> entry : configFileReader.getAdjList().entrySet()) {

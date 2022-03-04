@@ -6,7 +6,7 @@ import edu.utd.dc.project0.algo.leaderelection.floodmax.domain.payload.Terminate
 import edu.utd.dc.project0.algo.leaderelection.floodmax.domain.payload.TokenPayload;
 import edu.utd.dc.project0.constants.GlobalConstants;
 import edu.utd.dc.project0.constants.LogLevel;
-import edu.utd.dc.project0.core.Process;
+import edu.utd.dc.project0.core.SyncActor;
 import edu.utd.dc.project0.core.io.sharedmemory.domain.Message;
 import edu.utd.dc.project0.core.support.ProcessId;
 import edu.utd.dc.project0.tree.TreeNode;
@@ -16,53 +16,22 @@ import edu.utd.dc.project0.tree.TreeNode;
  *
  * <p>Extends process class to inherit properties like onReceive(), send(), getNeighbours() etc.
  */
-public class FloodMaxLeaderElectionProcess extends Process {
+public class FloodMaxLeaderElectionSyncActor extends SyncActor {
 
   private final TreeNode<ProcessId> bfsTree;
-
-  private boolean canStartRound;
-  private boolean isTerminated;
 
   private int maxId;
   private int rejectCount;
   private int iAmDoneCount;
 
-  public FloodMaxLeaderElectionProcess(ProcessId processId) {
+  public FloodMaxLeaderElectionSyncActor(ProcessId processId) {
     super(processId);
-
-    this.isTerminated = false;
-    this.canStartRound = false;
 
     this.bfsTree = new TreeNode<>();
     this.maxId = processId.getID();
   }
 
-  /**
-   * Endless while loop util terminated. If you can start a new round, it invokes {@link
-   * #nextRound()} and then goes to {@link #syncWait()}. It will be in wait state untill {@link
-   * #syncNotify()} is invoked from the {@link #canStartRound}.
-   */
-  @Override
-  public void init() {
-    while (!isTerminated) {
-
-      if (this.canStartRound) nextRound();
-      this.canStartRound = false;
-
-      syncWait();
-    }
-  }
-
-  /**
-   * Invoked by the {@link FloodMaxLeaderElectionManager#electLeader()} after a fixed interval (Sync
-   * Clock).
-   */
-  public void enableNextRound() {
-    this.canStartRound = true;
-    syncNotify();
-  }
-
-  public void nextRound() {
+  public void msgsOutgoing() {
     TokenPayload payload = new TokenPayload(maxId);
 
     for (ProcessId neighbour : getNeighbours()) {
@@ -72,14 +41,19 @@ public class FloodMaxLeaderElectionProcess extends Process {
     }
   }
 
+  @Override
+  public void transIncoming() {
+
+  }
+
   /**
    * Parent function which recieve all the incoming messages. Based on the message category, we
    * delegate these payloads to respective handlers.
    *
    * @param message Node Message
    */
-  @Override
-  public void onReceivedMessage(Message message) {
+ // @Override
+  public void transIncoming(Message message) {
     log(LogLevel.DEBUG, message._source.getID() + " " + message.payload.toString());
 
     if (message.payload instanceof TokenPayload) {
@@ -139,23 +113,6 @@ public class FloodMaxLeaderElectionProcess extends Process {
     isTerminated = true;
     bfsTree.children.forEach(
         child -> send(child, new Message(getProcessId(), new TerminatePayload(maxId))));
-  }
-
-  /** Pause using locks */
-  private void syncWait() {
-    try {
-      synchronized (this) {
-        wait();
-      }
-    } catch (InterruptedException ex) {
-    }
-  }
-
-  /** Resume using locks */
-  private void syncNotify() {
-    synchronized (this) {
-      notify();
-    }
   }
 
   private void log(LogLevel logLevel, String message) {
