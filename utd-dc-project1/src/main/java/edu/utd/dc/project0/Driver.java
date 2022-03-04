@@ -7,7 +7,7 @@ public class Driver {
 
   public static void main(String[] args) {
     // Read Config
-    String configFileName = "utd-dc-project1/src/main/resources/inputdata.txt";
+    String configFileName = "C:/Users/spenc/Desktop/utd-dc-projects-master/utd-dc-project1/src/main/resources/inputdata.txt";
     ConfigFileReader configFileReader = new ConfigFileReader(configFileName);
 
     // Run FloodMax Leader Election Driver
@@ -16,6 +16,6 @@ public class Driver {
     int leaderId = floodMaxLeaderElectionManager.electLeader();
 
     // Print Leader
-    System.out.println(leaderId);
+    System.out.println("Leader ID is: " + leaderId);
   }
 }

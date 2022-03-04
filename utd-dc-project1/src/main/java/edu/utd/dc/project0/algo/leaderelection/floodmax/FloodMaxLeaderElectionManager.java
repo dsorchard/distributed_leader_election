@@ -55,7 +55,7 @@ public class FloodMaxLeaderElectionManager {
       }
     }
 
-    return 0;
+    return floodMaxProcesses[0].getMaxId();
   }
 
   private boolean isAllThreadsDead(Thread[] threads) {
