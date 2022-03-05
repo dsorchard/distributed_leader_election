@@ -22,6 +22,10 @@ public class ConfigFileReader {
 
     adjList = new LinkedHashMap<>();
 
+    parseFile(configFileName);
+  }
+
+  private void parseFile(String configFileName) {
     try (BufferedReader br = new BufferedReader(new FileReader(configFileName))) {
       int lineCounter = 1;
       String line = br.readLine();

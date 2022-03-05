@@ -17,7 +17,7 @@ import java.util.List;
  *
  * <p>Uses Template pattern.
  */
-public abstract class SyncActor implements Listener, Runnable {
+public abstract class SyncProcess implements Listener, Runnable {
 
   private final ProcessId processId;
   private final List<ProcessId> neighbours;
@@ -29,7 +29,7 @@ public abstract class SyncActor implements Listener, Runnable {
   private boolean isTerminated;
   private int roundNumber;
 
-  public SyncActor(ProcessId processId) {
+  public SyncProcess(ProcessId processId) {
     this.isTerminated = false;
     this.canStartRound = false;
 
@@ -47,8 +47,11 @@ public abstract class SyncActor implements Listener, Runnable {
    */
   public void enableNextRound() {
     this.canStartRound = true;
+
+    // This is to avoid concurrent modification
     this.prevRoundReceivedMessages.clear();
     this.prevRoundReceivedMessages.addAll(currRoundReceivedMessages);
+
     this.currRoundReceivedMessages.clear();
 
     syncNotify();
@@ -71,22 +74,23 @@ public abstract class SyncActor implements Listener, Runnable {
     }
   }
 
+  /** Template pattern. */
   private void startNextRound() {
 
-    handleNextRound(roundNumber);
+    handlePreRound(roundNumber);
     handleIncoming();
     handleOutgoing();
 
     roundNumber++;
   }
 
-  protected abstract void handleNextRound(int roundNumber);
+  protected abstract void handlePreRound(int roundNumber);
 
   protected abstract void handleOutgoing();
 
   protected abstract void handleIncoming();
 
-  public void send(ProcessId destinationId, Message message) {
+  protected void send(ProcessId destinationId, Message message) {
     SharedMemoryBus.send(destinationId, message);
   }
 
@@ -95,7 +99,7 @@ public abstract class SyncActor implements Listener, Runnable {
     this.currRoundReceivedMessages.add(message);
   }
 
-  public void addNeighbour(SyncActor neighbourProcess) {
+  public void addNeighbour(SyncProcess neighbourProcess) {
     this.neighbours.add(neighbourProcess.processId);
     SharedMemoryBus.register(this.processId, neighbourProcess.processId, neighbourProcess);
   }
@@ -106,6 +110,10 @@ public abstract class SyncActor implements Listener, Runnable {
 
   public List<ProcessId> getNeighbours() {
     return neighbours;
+  }
+
+  public boolean isTerminated() {
+    return isTerminated;
   }
 
   public void setTerminated(boolean terminated) {

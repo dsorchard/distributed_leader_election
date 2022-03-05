@@ -1,5 +1,6 @@
 package edu.utd.dc.project0.algo.leaderelection.floodmax.domain.payload;
 
+/** Leader announces it's ID using Terminate Payload. */
 public class TerminatePayload {
   public int leaderId;
 

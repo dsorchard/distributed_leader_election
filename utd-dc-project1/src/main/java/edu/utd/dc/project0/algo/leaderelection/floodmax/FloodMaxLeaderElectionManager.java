@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Responsible for : spinning up N Threads of AlgoProcess, Starting a new round and anounicing
- * termination.
+ * Responsible for : spinning up N Threads of AlgoProcess, Starts a new round until every thread
+ * sleeps.
  */
 public class FloodMaxLeaderElectionManager {
 
@@ -22,7 +22,7 @@ public class FloodMaxLeaderElectionManager {
   }
 
   /**
-   * Return the max leaderId.
+   * Spins up N threads, executed FloodMaxLeader Election and return maxId.
    *
    * @return max leader id.
    */
@@ -30,7 +30,7 @@ public class FloodMaxLeaderElectionManager {
     log(LogLevel.DEBUG, configFileReader.toString());
 
     int n = configFileReader.getSize();
-    FloodMaxLeaderElectionSyncActor[] floodMaxProcesses = initProcesses(configFileReader);
+    FloodMaxLeaderElectionSyncProcess[] floodMaxProcesses = initProcesses(configFileReader);
 
     // Start n threads
     Thread[] threads = new Thread[n];
@@ -50,11 +50,11 @@ public class FloodMaxLeaderElectionManager {
       }
 
       // Ask processes to start their rounds
-      for (FloodMaxLeaderElectionSyncActor process : floodMaxProcesses) {
-        process.enableNextRound();
-      }
+      for (FloodMaxLeaderElectionSyncProcess process : floodMaxProcesses) process.enableNextRound();
     }
 
+    // need not be arr[0]. every node would be aware of the leaderId, so pick any process and get
+    // the leaderId.
     return floodMaxProcesses[0].getLeaderId();
   }
 
@@ -64,20 +64,25 @@ public class FloodMaxLeaderElectionManager {
   }
 
   /**
-   * Initializes all the N Threads required for the System.
+   * Initializes all the N Runnable Processes required for the System.
    *
    * @param configFileReader config
    * @return AlgoProcessArray[n]
    */
-  private FloodMaxLeaderElectionSyncActor[] initProcesses(ConfigFileReader configFileReader) {
+  private FloodMaxLeaderElectionSyncProcess[] initProcesses(ConfigFileReader configFileReader) {
     int n = configFileReader.getSize();
 
-    FloodMaxLeaderElectionSyncActor[] floodMaxProcesses = new FloodMaxLeaderElectionSyncActor[n];
+    // instantiate array
+    FloodMaxLeaderElectionSyncProcess[] floodMaxProcesses =
+        new FloodMaxLeaderElectionSyncProcess[n];
+
+    // initialize values
     for (int i = 0; i < n; i++) {
       ProcessId processId = configFileReader.getProcessIdList().get(i);
-      floodMaxProcesses[i] = new FloodMaxLeaderElectionSyncActor(processId);
+      floodMaxProcesses[i] = new FloodMaxLeaderElectionSyncProcess(processId);
     }
 
+    // connect edges
     for (Map.Entry<Integer, List<Integer>> entry : configFileReader.getAdjList().entrySet()) {
       Integer nodeIdx = entry.getKey();
       for (Integer neighbourIdx : entry.getValue())

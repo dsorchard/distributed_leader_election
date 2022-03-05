@@ -1,9 +1,10 @@
 package edu.utd.dc.project0.algo.leaderelection.floodmax.domain.payload;
 
-public class TokenPayload {
+/** Contains the max leader id seen so far */
+public class SearchPayload {
   public int leaderId;
 
-  public TokenPayload(int leaderId) {
+  public SearchPayload(int leaderId) {
     this.leaderId = leaderId;
   }
 
