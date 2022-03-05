@@ -78,14 +78,62 @@ utd-dc-projects1
 
 ### Compile Section
 
-[//]: # ( TODO: Spencer will be filling)
+```shell
+# TODO: Spencer to fill this
+javac Driver 
+```
 
 ### Working
 
-The code base contains 3 main parts.
+The code base contains 3 main sections.
 
-**Sync Process:** 
+#### 1. Sync Process:
 
-**Service Bus:**
+Abstracts out all the round related functionalities into this class, following `Template Pattern`. Contains `send()`
+, `receive()`, `nextRound()` etc. The `algorithm process` upon extending this will implement, `preprocess()`
+, `incoming()`, `outgoing()` functions. The process executes `nextRound()` function util `terminate` flag is true.
+The `enableNextRound()` acts as a toggle switch: when it is true, we can start a new round, and then go in the `wait()`
+stage with resetting the value back to false. When the `enableNextRound()` gets invoked, we set the flag as true and
+call the `resume()` to start the while loop again and go to the next round.
 
-**Algorithm:**
+#### 2. Service Bus:
+
+Singleton class that handles all communication edges in the network. Uses adjacency list. When
+a `send(src, dest, message)` is invoke, it fetches the Destination Process from the Map and calls the `onRecieve()`
+function of the Listener Process.
+
+#### 3. Flood Max Algorithm:
+
+Flood Max with Termination detection (using BFS Tree). Algorithm executes in rounds. In the first round, every process
+sends its leaderId to every other neighbour. In the second round, the process will work on the messages received in the
+previous round, ie round one, and performs the appropriate actions (includes, updating leader, sending IAM done, sending
+reject etc.). Then it sends, the message to the outgoing neighbour based on the current process state (ie leaderId).
+
+##### Concurrency
+
+Inorder to avoid concurrency modification issues, we are maintaining two lists: `currRoundReceivedMessages`
+& `prevRoundReceivedMessages`. All the messages received in the current round, will be added
+to `currRoundReceivedMessages` and after completing the round, it will be added to the `prevRoundReceivedMessages` (it
+will be flushed before adding). This ensures that the list, `prevRoundReceivedMessages` is not modified when doing
+current round processing.
+
+##### Reject Message
+
+When you get `reject` message from all the neighbours, you declare yourself as a leaf node, and send `IAmDoneMessage` to
+the parent.
+
+##### IAM Done Message
+
+When you get a `IAmDone` message from a neighbour, you associate that neighbour as a child in your `bfs tree`. When you
+get `IAmDone` from all your neighbours, you send `IAmDone` to your parent.
+
+##### Parent Node
+
+When you get `IAmDone` from all your neighbours, your parent is null. You declare yourself as a leader. You send
+terminate message.
+
+##### Terminate
+
+When the leader is elected, we send the leaderId to all the node. This message also sets the isTerminate flag to true,
+forcing the Process while loop to exit and there by closing the thread. When all the threads are closed, we end the main
+process (this check is performed in the ElectionManager). 
