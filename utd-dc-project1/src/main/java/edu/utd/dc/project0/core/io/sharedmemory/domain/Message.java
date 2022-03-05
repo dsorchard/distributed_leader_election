@@ -12,4 +12,9 @@ public class Message {
     this._source = source;
     this.payload = payload;
   }
+
+  @Override
+  public String toString() {
+    return "Message{" + "_source=" + _source + ", payload=" + payload + '}';
+  }
 }
