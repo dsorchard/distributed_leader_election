@@ -4,73 +4,69 @@ import edu.utd.dc.project0.algo.leaderelection.floodmax.domain.payload.IAmDonePa
 import edu.utd.dc.project0.algo.leaderelection.floodmax.domain.payload.RejectPayload;
 import edu.utd.dc.project0.algo.leaderelection.floodmax.domain.payload.TerminatePayload;
 import edu.utd.dc.project0.algo.leaderelection.floodmax.domain.payload.TokenPayload;
-import edu.utd.dc.project0.constants.GlobalConstants;
 import edu.utd.dc.project0.constants.LogLevel;
 import edu.utd.dc.project0.core.SyncActor;
 import edu.utd.dc.project0.core.io.sharedmemory.domain.Message;
 import edu.utd.dc.project0.core.support.ProcessId;
 import edu.utd.dc.project0.tree.TreeNode;
 
-/**
- * Contains the core algorithm related implementations.
- *
- * <p>Extends process class to inherit properties like onReceive(), send(), getNeighbours() etc.
- */
+import java.util.HashSet;
+import java.util.Set;
+
 public class FloodMaxLeaderElectionSyncActor extends SyncActor {
 
   private final TreeNode<ProcessId> bfsTree;
-
-  private int maxId;
-  private int rejectCount;
-  private int iAmDoneCount;
+  private final Set<ProcessId> rejectProcessIdSet;
+  private final Set<ProcessId> iAmDoneProcessIdSet;
+  private int leaderId;
 
   public FloodMaxLeaderElectionSyncActor(ProcessId processId) {
     super(processId);
 
+    this.leaderId = processId.getID();
     this.bfsTree = new TreeNode<>();
-    this.maxId = processId.getID();
-  }
 
-  public void msgsOutgoing() {
-    TokenPayload payload = new TokenPayload(maxId);
-
-    for (ProcessId neighbour : getNeighbours()) {
-      // TODO: skip sending to parent
-      Message message = new Message(getProcessId(), payload);
-      send(neighbour, message);
-    }
+    this.rejectProcessIdSet = new HashSet<>();
+    this.iAmDoneProcessIdSet = new HashSet<>();
   }
 
   @Override
-  public void transIncoming() {
-
+  protected void handleNextRound(int roundNumber) {
+    System.out.println(getProcessId() + " Round # " + roundNumber);
+    this.rejectProcessIdSet.clear();
+    this.iAmDoneProcessIdSet.clear();
   }
 
-  /**
-   * Parent function which recieve all the incoming messages. Based on the message category, we
-   * delegate these payloads to respective handlers.
-   *
-   * @param message Node Message
-   */
- // @Override
-  public void transIncoming(Message message) {
-    log(LogLevel.DEBUG, message._source.getID() + " " + message.payload.toString());
+  @Override
+  public void handleIncoming() {
+    this.prevRoundReceivedMessages.forEach(
+        message -> {
+          log(LogLevel.DEBUG, "Receiver " + getProcessId() + " " + message.toString());
 
-    if (message.payload instanceof TokenPayload) {
-      handleTokenMessage(message._source, (TokenPayload) message.payload);
-    } else if (message.payload instanceof RejectPayload) {
-      handleRejectMessage(message._source, (RejectPayload) message.payload);
-    } else if (message.payload instanceof IAmDonePayload) {
-      handleIAmDoneMessage(message._source, (IAmDonePayload) message.payload);
-    } else if (message.payload instanceof TerminatePayload) {
-      handleTerminateMessage(message._source, (TerminatePayload) message.payload);
-    }
+          if (message.payload instanceof TokenPayload) {
+            handleTokenMessage(message._source, (TokenPayload) message.payload);
+          } else if (message.payload instanceof RejectPayload) {
+            handleRejectMessage(message._source);
+          } else if (message.payload instanceof IAmDonePayload) {
+            handleIAmDoneMessage(message._source);
+          } else if (message.payload instanceof TerminatePayload) {
+            handleTerminateMessage(message._source, (TerminatePayload) message.payload);
+          }
+        });
+  }
+
+  @Override
+  public void handleOutgoing() {
+
+    getNeighbours()
+        .forEach(
+            neighbour -> send(neighbour, new Message(getProcessId(), new TokenPayload(leaderId))));
   }
 
   private synchronized void handleTokenMessage(ProcessId source, TokenPayload payload) {
-    if (payload.maxId > maxId) {
+    if (payload.leaderId > leaderId) {
       // 1. set max ID
-      maxId = payload.maxId;
+      leaderId = payload.leaderId;
 
       // 2. set tree relation
       bfsTree.isLeaf = false;
@@ -81,41 +77,37 @@ public class FloodMaxLeaderElectionSyncActor extends SyncActor {
     }
   }
 
-  private synchronized void handleRejectMessage(ProcessId source, RejectPayload payload) {
-    this.rejectCount++;
+  private synchronized void handleRejectMessage(ProcessId source) {
+    this.rejectProcessIdSet.add(source);
 
-    if (this.rejectCount == getNeighbours().size()) {
+    if (this.rejectProcessIdSet.size() == getNeighbours().size()) {
       bfsTree.isLeaf = true;
-      send(bfsTree.parentId, new Message(getProcessId(), new IAmDonePayload(maxId)));
+      send(bfsTree.parentId, new Message(getProcessId(), new IAmDonePayload()));
     }
   }
 
-  private synchronized void handleIAmDoneMessage(ProcessId source, IAmDonePayload payload) {
-    this.iAmDoneCount++;
-
-    this.maxId = Math.max(maxId, payload.maxId);
-
-    // I am done is sent by its children
+  private synchronized void handleIAmDoneMessage(ProcessId source) {
+    this.iAmDoneProcessIdSet.add(source);
     this.bfsTree.children.add(source);
 
-    if (this.iAmDoneCount == getNeighbours().size()) terminate();
+    if (this.iAmDoneProcessIdSet.size() == getNeighbours().size()) {
+      if (bfsTree.parentId == null) terminate();
+      else send(bfsTree.parentId, new Message(getProcessId(), new IAmDonePayload()));
+    }
   }
 
   private synchronized void handleTerminateMessage(ProcessId source, TerminatePayload payload) {
-    isTerminated = true;
-
-    if (!bfsTree.isLeaf)
-      bfsTree.children.forEach(child -> send(child, new Message(getProcessId(), payload)));
+    this.leaderId = payload.leaderId;
+    terminate();
   }
 
-  /** Terminate Announcement */
   private void terminate() {
-    isTerminated = true;
+    setTerminated(true);
     bfsTree.children.forEach(
-        child -> send(child, new Message(getProcessId(), new TerminatePayload(maxId))));
+        child -> send(child, new Message(getProcessId(), new TerminatePayload(leaderId))));
   }
 
-  private void log(LogLevel logLevel, String message) {
-    if (logLevel.getValue() >= GlobalConstants.LOG_LEVEL.getValue()) System.out.println(message);
+  public int getLeaderId() {
+    return leaderId;
   }
 }

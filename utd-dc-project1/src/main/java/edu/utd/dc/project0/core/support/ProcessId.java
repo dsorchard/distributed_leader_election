@@ -15,4 +15,9 @@ public class ProcessId {
   public int getID() {
     return id;
   }
+
+  @Override
+  public String toString() {
+    return "ProcessId{" + "id=" + id + '}';
+  }
 }

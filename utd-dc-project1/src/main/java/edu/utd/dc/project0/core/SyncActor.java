@@ -1,12 +1,15 @@
 package edu.utd.dc.project0.core;
 
 import edu.utd.dc.project0.algo.leaderelection.floodmax.FloodMaxLeaderElectionManager;
+import edu.utd.dc.project0.constants.GlobalConstants;
+import edu.utd.dc.project0.constants.LogLevel;
 import edu.utd.dc.project0.core.io.sharedmemory.Listener;
 import edu.utd.dc.project0.core.io.sharedmemory.SharedMemoryBus;
 import edu.utd.dc.project0.core.io.sharedmemory.domain.Message;
 import edu.utd.dc.project0.core.support.ProcessId;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,42 +19,26 @@ import java.util.List;
  */
 public abstract class SyncActor implements Listener, Runnable {
 
-  private final ProcessId own;
+  private final ProcessId processId;
   private final List<ProcessId> neighbours;
-  protected List<Message> messageQueue;
 
-  protected boolean canStartRound;
-  protected boolean isTerminated;
+  private final List<Message> currRoundReceivedMessages;
+  protected List<Message> prevRoundReceivedMessages;
+
+  private boolean canStartRound;
+  private boolean isTerminated;
+  private int roundNumber;
 
   public SyncActor(ProcessId processId) {
     this.isTerminated = false;
     this.canStartRound = false;
 
     this.neighbours = new ArrayList<>();
-    this.own = processId;
+    this.processId = processId;
 
-    this.messageQueue = new ArrayList<>();
-  }
-
-  public void send(ProcessId destinationId, Message message) {
-    SharedMemoryBus.send(destinationId, message);
-  }
-
-  /**
-   * Endless while loop util terminated. If you can start a new round, it invokes {@link
-   * #msgsOutgoing()} and then goes to {@link #syncWait()}. It will be in wait state untill {@link
-   * #syncNotify()} is invoked from the {@link #canStartRound}.
-   */
-  @Override
-  public void run() {
-
-    while (!isTerminated) {
-
-      if (this.canStartRound) msgsOutgoing();
-      this.canStartRound = false;
-
-      syncWait();
-    }
+    this.roundNumber = 0;
+    this.currRoundReceivedMessages = Collections.synchronizedList(new ArrayList<>());
+    this.prevRoundReceivedMessages = Collections.synchronizedList(new ArrayList<>());
   }
 
   /**
@@ -60,39 +47,70 @@ public abstract class SyncActor implements Listener, Runnable {
    */
   public void enableNextRound() {
     this.canStartRound = true;
-    this.messageQueue.clear();
+    this.prevRoundReceivedMessages.clear();
+    this.prevRoundReceivedMessages.addAll(currRoundReceivedMessages);
+    this.currRoundReceivedMessages.clear();
+
     syncNotify();
+  }
+
+  /**
+   * Endless while loop util terminated. If you can start a new round, it invokes {@link
+   * #handleOutgoing()} and then goes to {@link #syncWait()}. It will be in wait state untill {@link
+   * #syncNotify()} is invoked from the {@link #canStartRound}.
+   */
+  @Override
+  public void run() {
+
+    while (!isTerminated) {
+
+      if (this.canStartRound) startNextRound();
+      this.canStartRound = false;
+
+      syncWait();
+    }
+  }
+
+  private void startNextRound() {
+
+    handleNextRound(roundNumber);
+    handleIncoming();
+    handleOutgoing();
+
+    roundNumber++;
+  }
+
+  protected abstract void handleNextRound(int roundNumber);
+
+  protected abstract void handleOutgoing();
+
+  protected abstract void handleIncoming();
+
+  public void send(ProcessId destinationId, Message message) {
+    SharedMemoryBus.send(destinationId, message);
   }
 
   @Override
   public void onReceive(Message message) {
-    this.messageQueue.add(message);
+    this.currRoundReceivedMessages.add(message);
   }
 
-  public abstract void msgsOutgoing();
-
   public void addNeighbour(SyncActor neighbourProcess) {
-    this.neighbours.add(neighbourProcess.own);
-    SharedMemoryBus.register(this.own, neighbourProcess.own, neighbourProcess);
+    this.neighbours.add(neighbourProcess.processId);
+    SharedMemoryBus.register(this.processId, neighbourProcess.processId, neighbourProcess);
   }
 
   public ProcessId getProcessId() {
-    return own;
+    return processId;
   }
 
   public List<ProcessId> getNeighbours() {
     return neighbours;
   }
 
-  //  /** This will usually contain an endless while loop with wait, to mimic server node. */
-  //  public abstract void start();
-
-  /**
-   * Responsible for handling received message
-   *
-   * @param message Node Message
-   */
-  public abstract void transIncoming();
+  public void setTerminated(boolean terminated) {
+    isTerminated = terminated;
+  }
 
   /** Pause using locks */
   private void syncWait() {
@@ -109,5 +127,9 @@ public abstract class SyncActor implements Listener, Runnable {
     synchronized (this) {
       notify();
     }
+  }
+
+  protected void log(LogLevel logLevel, String message) {
+    if (logLevel.getValue() >= GlobalConstants.LOG_LEVEL.getValue()) System.out.println(message);
   }
 }

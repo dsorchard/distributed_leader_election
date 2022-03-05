@@ -1,14 +1,14 @@
 package edu.utd.dc.project0.algo.leaderelection.floodmax.domain.payload;
 
 public class TokenPayload {
-  public int maxId;
+  public int leaderId;
 
-  public TokenPayload(int maxId) {
-    this.maxId = maxId;
+  public TokenPayload(int leaderId) {
+    this.leaderId = leaderId;
   }
 
   @Override
   public String toString() {
-    return "TokenPayload{" + "maxId=" + maxId + '}';
+    return "TokenPayload{" + "leaderId=" + leaderId + '}';
   }
 }
