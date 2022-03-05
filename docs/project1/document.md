@@ -79,8 +79,9 @@ utd-dc-projects1
 ### Compile Section
 
 ```shell
-# TODO: Spencer to fill this
-javac Driver 
+cd  /path-to/aos-dc
+javac build *.java
+java -cp build Main /path-to/config.txt
 ```
 
 ### Working
