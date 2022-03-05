@@ -73,14 +73,15 @@ utd-dc-projects1
 ```
 ### Sample Input File Content
 ```text
-8
-12 18 58 56 55 54 13 60
-2 5 6 7
-1 3 4 6 7
+6
+12 18 58 56 55 54
+2 5 6
+1 3 4 6
 2 4
 2 3 5 6
 1 4 6
-1 2 4 5 7
-1 2 6 8
-7
+1 2 4 5
 ```
+
+### Graph Structure
+![Graph](docs/images/project1_floodmax_sample_input.png)
