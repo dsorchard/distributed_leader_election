@@ -79,9 +79,9 @@ utd-dc-projects1
 ### Compile Section
 
 ```shell
-cd  /path-to/aos-dc
-javac build *.java
-java -cp build Main /path-to/config.txt
+cd src/
+javac Driver.java
+java Driver [textFilePath]
 ```
 
 ### Working

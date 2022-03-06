@@ -38,6 +38,8 @@ public class FloodMaxLeaderElectionSyncProcess extends SyncProcess {
    */
   @Override
   protected void handlePreRound(int roundNumber) {
+    log(LogLevel.DEBUG, "Round #" + roundNumber);
+
     this.rejectProcessIdSet.clear();
     this.iAmDoneProcessIdSet.clear();
   }

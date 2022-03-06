@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /** Singleton class responsible for handling messages in the network. */
 public final class SharedMemoryBus {
 
-  public static Map<ProcessId, List<Destination>> list = new ConcurrentHashMap<>();
+  public static Map<ProcessId, List<Destination>> map = new ConcurrentHashMap<>();
 
   /**
    * Registers an edge.
@@ -21,8 +21,8 @@ public final class SharedMemoryBus {
    * @param listener contains the destination client
    */
   public static void register(ProcessId source, ProcessId destination, Listener listener) {
-    list.putIfAbsent(source, new ArrayList<>());
-    list.get(source).add(new Destination(destination, listener));
+    map.putIfAbsent(source, new ArrayList<>());
+    map.get(source).add(new Destination(destination, listener));
   }
 
   /**
@@ -35,7 +35,7 @@ public final class SharedMemoryBus {
   public static synchronized void send(ProcessId destinationId, Message message) {
     ProcessId sourceId = message._source;
 
-    for (Destination destination : list.get(sourceId))
+    for (Destination destination : map.get(sourceId))
       if (destination.destinationId == destinationId) destination.client.onReceive(message);
   }
 
