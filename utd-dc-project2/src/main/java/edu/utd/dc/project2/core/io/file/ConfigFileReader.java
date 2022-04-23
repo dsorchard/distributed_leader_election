@@ -42,7 +42,7 @@ public class ConfigFileReader {
             size = Integer.parseInt(line);
 
             processIdList =
-                IntStream.range(1, size).mapToObj(ProcessId::new).collect(Collectors.toList());
+                IntStream.range(0, size).mapToObj(ProcessId::new).collect(Collectors.toList());
 
           } else if (lineCounter == 2) {
             root = Integer.parseInt(line) - 1;
@@ -50,7 +50,7 @@ public class ConfigFileReader {
 
             String[] tokens = line.split("#")[0].split(" ");
 
-            Integer keyIdx = (lineCounter - 1 - 2);
+            Integer keyIdx = (lineCounter - 3);
             adjList.putIfAbsent(keyIdx, new ArrayList<>());
 
             for (int i = 0; i < tokens.length; i++) {
@@ -92,6 +92,11 @@ public class ConfigFileReader {
     StringBuilder sb = new StringBuilder();
     sb.append("Size: ").append(getSize()).append("\n");
     sb.append("Root: ").append(getRoot()).append("\n");
+
+    sb.append("ProcessId List: ");
+    getProcessIdList().forEach(sb::append);
+    sb.append("\n");
+
     getAdjList()
         .forEach(
             (k, v) -> {

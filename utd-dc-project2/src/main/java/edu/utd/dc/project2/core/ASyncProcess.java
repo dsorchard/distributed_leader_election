@@ -21,12 +21,8 @@ public abstract class ASyncProcess implements Listener, Runnable {
   private final ProcessId processId;
   private final List<ProcessId> neighbours;
 
-  private final List<Message> currRoundReceivedMessages;
-  protected List<Message> prevRoundReceivedMessages;
-
   private boolean canStartNextPhase;
   private boolean isTerminated;
-  private int roundNumber;
 
   public ASyncProcess(ProcessId processId) {
     this.isTerminated = false;
@@ -34,10 +30,6 @@ public abstract class ASyncProcess implements Listener, Runnable {
 
     this.neighbours = new ArrayList<>();
     this.processId = processId;
-
-    this.roundNumber = 0;
-    this.currRoundReceivedMessages = new ArrayList<>();
-    this.prevRoundReceivedMessages = new ArrayList<>();
   }
 
   /**
@@ -45,13 +37,6 @@ public abstract class ASyncProcess implements Listener, Runnable {
    */
   public void enableNextPhase() {
     this.canStartNextPhase = true;
-
-    // This is to avoid concurrent modification
-    this.prevRoundReceivedMessages.clear();
-    this.prevRoundReceivedMessages.addAll(currRoundReceivedMessages);
-
-    this.currRoundReceivedMessages.clear();
-
     syncNotify();
   }
 
@@ -73,20 +58,18 @@ public abstract class ASyncProcess implements Listener, Runnable {
   }
 
   /** Template pattern. */
+  // TODO: Modify
+
   private void startNextPhase() {
-
-    handlePreRound(roundNumber);
-    handleIncoming();
+    handlePrePhase();
     handleOutgoing();
-
-    roundNumber++;
   }
 
-  protected abstract void handlePreRound(int roundNumber);
+  protected abstract void handlePrePhase();
 
   protected abstract void handleOutgoing();
 
-  protected abstract void handleIncoming();
+  protected abstract void handleIncoming(Message message);
 
   protected void send(ProcessId destinationId, Message message) {
     SharedMemoryBus.send(destinationId, message);
@@ -98,7 +81,7 @@ public abstract class ASyncProcess implements Listener, Runnable {
 
   @Override
   public void onReceive(Message message) {
-    this.currRoundReceivedMessages.add(message);
+    this.handleIncoming(message);
   }
 
   public void addNeighbour(ASyncProcess neighbourProcess) {

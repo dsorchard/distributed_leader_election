@@ -18,11 +18,13 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
   private int depth = 0;
   public final TreeNode<ProcessId> bfsTree;
   private final Set<ProcessId> iAmDoneProcessIdSet;
-  private final Set<ProcessId> ackProcessIdSet;
+
+  private final Set<ProcessId> pAckProcessIdSet;
+  private final Set<ProcessId> nAckProcessIdSet;
 
   private int leaderId;
 
-  private boolean isNewNodeDiscovered;
+  private boolean isNewNodeDiscovered = false;
 
   int delay = RandomUtils.valueBetween(1, 12);
 
@@ -33,19 +35,12 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     this.bfsTree = new TreeNode<>();
 
     this.iAmDoneProcessIdSet = new HashSet<>();
-    this.ackProcessIdSet = new HashSet<>();
+    this.pAckProcessIdSet = new HashSet<>();
+    this.nAckProcessIdSet = new HashSet<>();
   }
 
-  /**
-   * Handles reset of previous round states.
-   *
-   * @param roundNumber Contains the current round Number
-   */
   @Override
-  protected void handlePreRound(int roundNumber) {
-    log(LogLevel.DEBUG, "Round #" + roundNumber);
-
-    this.isNewNodeDiscovered = false;
+  protected void handlePrePhase() {
     this.iAmDoneProcessIdSet.clear();
     this.depth++;
   }
@@ -61,25 +56,23 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
    * </pre>
    */
   @Override
-  public void handleIncoming() {
-    this.prevRoundReceivedMessages.forEach(
-        message -> {
-          log(LogLevel.DEBUG, "Receiver " + getProcessId() + " " + message.toString());
+  public void handleIncoming(Message message) {
 
-          if (message.payload instanceof NewPhasePayload) {
-            handleNewPhaseMessage(message._source, (NewPhasePayload) message.payload);
-          } else if (message.payload instanceof SearchPayload) {
-            handleSearchMessage(message._source);
-          } else if (message.payload instanceof PAckPayload) {
-            handlePAckMessage(message._source);
-          } else if (message.payload instanceof NAckPayload) {
-            handleNAckMessage(message._source);
-          } else if (message.payload instanceof IAmDonePayload) {
-            handleIAmDoneMessage(message._source, (IAmDonePayload) message.payload);
-          } else if (message.payload instanceof TerminatePayload) {
-            handleTerminateMessage(message._source, (TerminatePayload) message.payload);
-          }
-        });
+    log(LogLevel.DEBUG, "Receiver " + getProcessId() + " " + message.toString());
+
+    if (message.payload instanceof NewPhasePayload) {
+      handleNewPhaseMessage(message._source, (NewPhasePayload) message.payload);
+    } else if (message.payload instanceof SearchPayload) {
+      handleSearchMessage(message._source);
+    } else if (message.payload instanceof PAckPayload) {
+      handlePAckMessage(message._source);
+    } else if (message.payload instanceof NAckPayload) {
+      handleNAckMessage(message._source);
+    } else if (message.payload instanceof IAmDonePayload) {
+      handleIAmDoneMessage(message._source, (IAmDonePayload) message.payload);
+    } else if (message.payload instanceof TerminatePayload) {
+      handleTerminateMessage(message._source, (TerminatePayload) message.payload);
+    }
   }
 
   /**
@@ -101,14 +94,25 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
 
   // DONE
   private void handleNewPhaseMessage(ProcessId source, NewPhasePayload payload) {
-    if (payload.depth == 0) {
-      this.enableNextPhase();
-    } else {
+    enableNextPhase();
+
+    if (payload.depth == 1) {
       getNeighbours()
           .forEach(
               neighbour -> {
                 if (neighbour.getID() != source.getID())
                   send(neighbour, new Message(getProcessId(), new SearchPayload(leaderId)), delay);
+              });
+
+    } else {
+      getNeighbours()
+          .forEach(
+              neighbour -> {
+                if (neighbour.getID() != source.getID())
+                  send(
+                      neighbour,
+                      new Message(getProcessId(), new NewPhasePayload(payload.depth - 1)),
+                      delay);
               });
     }
   }
@@ -127,19 +131,27 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
   private void handlePAckMessage(ProcessId source) {
     this.bfsTree.children.add(source);
 
-    this.ackProcessIdSet.add(source);
+    this.pAckProcessIdSet.add(source);
 
-    if (this.ackProcessIdSet.size() == getNeighbours().size()) {
-      send(this.bfsTree.parentId, new Message(getProcessId(), new IAmDonePayload(true)), delay);
+    if (pAckProcessIdSet.size() + nAckProcessIdSet.size() == getNeighbours().size()) {
+      boolean isNewNodesDiscovered = !pAckProcessIdSet.isEmpty();
+      send(
+          this.bfsTree.parentId,
+          new Message(getProcessId(), new IAmDonePayload(isNewNodesDiscovered)),
+          delay);
     }
   }
 
   // DONE
   private synchronized void handleNAckMessage(ProcessId source) {
-    this.ackProcessIdSet.add(source);
+    this.nAckProcessIdSet.add(source);
 
-    if (this.ackProcessIdSet.size() == getNeighbours().size()) {
-      send(this.bfsTree.parentId, new Message(getProcessId(), new IAmDonePayload(false)), delay);
+    if (pAckProcessIdSet.size() + nAckProcessIdSet.size() == getNeighbours().size()) {
+      boolean isNewNodesDiscovered = !pAckProcessIdSet.isEmpty();
+      send(
+          this.bfsTree.parentId,
+          new Message(getProcessId(), new IAmDonePayload(isNewNodesDiscovered)),
+          delay);
     }
   }
 
@@ -154,6 +166,8 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
       } else
         send(
             bfsTree.parentId, new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)));
+
+      isNewNodeDiscovered = false;
     }
   }
 

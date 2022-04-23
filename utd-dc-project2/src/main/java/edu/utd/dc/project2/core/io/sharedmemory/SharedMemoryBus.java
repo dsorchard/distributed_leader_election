@@ -5,14 +5,14 @@ import edu.utd.dc.project2.core.support.ProcessId;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /** Singleton class responsible for handling messages in the network. */
 public final class SharedMemoryBus {
 
   static int scalarClock = 1;
 
-  static PriorityQueue<DelayedMessage> pq =
-      new PriorityQueue<>(Comparator.comparingInt(a -> a.exitTs));
+  static PriorityBlockingQueue<DelayedMessage> pq = new PriorityBlockingQueue<>();
   public static Map<ProcessId, List<Destination>> map = new ConcurrentHashMap<>();
 
   /**
@@ -68,15 +68,20 @@ public final class SharedMemoryBus {
     }
   }
 
-  public static class DelayedMessage {
+  public static class DelayedMessage implements Comparable<DelayedMessage> {
     ProcessId destinationId;
     Message message;
-    int exitTs;
+    public Integer exitTs;
 
     public DelayedMessage(ProcessId destinationId, Message message, int exitTs) {
       this.destinationId = destinationId;
       this.message = message;
       this.exitTs = exitTs;
+    }
+
+    @Override
+    public int compareTo(DelayedMessage msg) {
+      return this.exitTs.compareTo(msg.exitTs);
     }
   }
 }
