@@ -1,9 +1,9 @@
-package edu.utd.dc.project2.algo.leaderelection.floodmax;
+package edu.utd.dc.project2.algo.bfs.layered;
 
-import edu.utd.dc.project2.algo.leaderelection.floodmax.FloodMaxLeaderElectionSyncProcess;
 import edu.utd.dc.project2.constants.GlobalConstants;
 import edu.utd.dc.project2.constants.LogLevel;
 import edu.utd.dc.project2.core.io.file.ConfigFileReader;
+import edu.utd.dc.project2.core.io.sharedmemory.SharedMemoryBus;
 import edu.utd.dc.project2.core.support.ProcessId;
 import edu.utd.dc.project2.utils.TimeUtils;
 
@@ -14,11 +14,11 @@ import java.util.Map;
  * Responsible for : spinning up N Threads of AlgoProcess, Starts a new round until every thread
  * sleeps.
  */
-public class FloodMaxLeaderElectionManager {
+public class LayeredBfsManager {
 
   private final ConfigFileReader configFileReader;
 
-  public FloodMaxLeaderElectionManager(ConfigFileReader configFileReader) {
+  public LayeredBfsManager(ConfigFileReader configFileReader) {
     this.configFileReader = configFileReader;
   }
 
@@ -27,18 +27,22 @@ public class FloodMaxLeaderElectionManager {
    *
    * @return max leader id.
    */
-  public int electLeader() {
+  public int buildBFSTree() {
     log(LogLevel.DEBUG, configFileReader.toString());
 
     int n = configFileReader.getSize();
-    FloodMaxLeaderElectionSyncProcess[] floodMaxProcesses = initProcesses(configFileReader);
+    LayeredBfsASyncProcess[] layeredBfsProcesses = initProcesses(configFileReader);
 
     // Start n threads
     Thread[] threads = new Thread[n];
     for (int i = 0; i < threads.length; i++) {
-      threads[i] = new Thread(floodMaxProcesses[i]);
+      threads[i] = new Thread(layeredBfsProcesses[i]);
       threads[i].start();
     }
+
+    int root = configFileReader.getRoot();
+    layeredBfsProcesses[root].bfsTree.isRoot = true;
+    layeredBfsProcesses[root].enableNextPhase();
 
     while (true) {
 
@@ -46,17 +50,17 @@ public class FloodMaxLeaderElectionManager {
 
       // Termination check, if no threads are alive, then terminate
       if (isAllThreadsDead(threads)) {
-        log(LogLevel.DEBUG, "Leader Election completed");
+        log(LogLevel.DEBUG, "Layered BFS completed");
         break;
       }
 
-      // Ask processes to start their rounds
-      for (FloodMaxLeaderElectionSyncProcess process : floodMaxProcesses) process.enableNextRound();
+      // Tick
+      SharedMemoryBus.tick();
     }
 
     // need not be arr[0]. every node would be aware of the leaderId, so pick any process and get
     // the leaderId.
-    return floodMaxProcesses[0].getLeaderId();
+    return layeredBfsProcesses[0].getLeaderId();
   }
 
   private boolean isAllThreadsDead(Thread[] threads) {
@@ -70,27 +74,26 @@ public class FloodMaxLeaderElectionManager {
    * @param configFileReader config
    * @return AlgoProcessArray[n]
    */
-  private FloodMaxLeaderElectionSyncProcess[] initProcesses(ConfigFileReader configFileReader) {
+  private LayeredBfsASyncProcess[] initProcesses(ConfigFileReader configFileReader) {
     int n = configFileReader.getSize();
 
     // instantiate array
-    FloodMaxLeaderElectionSyncProcess[] floodMaxProcesses =
-        new FloodMaxLeaderElectionSyncProcess[n];
+    LayeredBfsASyncProcess[] layeredBfsProcesses = new LayeredBfsASyncProcess[n];
 
     // initialize values
     for (int i = 0; i < n; i++) {
       ProcessId processId = configFileReader.getProcessIdList().get(i);
-      floodMaxProcesses[i] = new FloodMaxLeaderElectionSyncProcess(processId);
+      layeredBfsProcesses[i] = new LayeredBfsASyncProcess(processId);
     }
 
     // connect edges
     for (Map.Entry<Integer, List<Integer>> entry : configFileReader.getAdjList().entrySet()) {
       Integer nodeIdx = entry.getKey();
       for (Integer neighbourIdx : entry.getValue())
-        floodMaxProcesses[nodeIdx].addNeighbour(floodMaxProcesses[neighbourIdx]);
+        layeredBfsProcesses[nodeIdx].addNeighbour(layeredBfsProcesses[neighbourIdx]);
     }
 
-    return floodMaxProcesses;
+    return layeredBfsProcesses;
   }
 
   /** Used for condition logging. Similar to Log4J. */

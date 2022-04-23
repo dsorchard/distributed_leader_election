@@ -12,11 +12,14 @@ public class TreeNode<T> {
 
   public T parentId;
   public boolean isLeaf;
+  public boolean isRoot;
+
   public List<T> children;
 
   public TreeNode() {
     this.parentId = null;
     this.isLeaf = false;
+    this.isRoot = false;
     this.children = new ArrayList<>();
   }
 }

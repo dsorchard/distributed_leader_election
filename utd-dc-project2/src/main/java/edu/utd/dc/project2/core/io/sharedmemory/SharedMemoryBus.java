@@ -3,14 +3,16 @@ package edu.utd.dc.project2.core.io.sharedmemory;
 import edu.utd.dc.project2.core.io.sharedmemory.domain.Message;
 import edu.utd.dc.project2.core.support.ProcessId;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Singleton class responsible for handling messages in the network. */
 public final class SharedMemoryBus {
 
+  static int scalarClock = 1;
+
+  static PriorityQueue<DelayedMessage> pq =
+      new PriorityQueue<>(Comparator.comparingInt(a -> a.exitTs));
   public static Map<ProcessId, List<Destination>> map = new ConcurrentHashMap<>();
 
   /**
@@ -39,6 +41,22 @@ public final class SharedMemoryBus {
       if (destination.destinationId == destinationId) destination.client.onReceive(message);
   }
 
+  public static synchronized void send(ProcessId destinationId, Message message, int delay) {
+    pq.add(new DelayedMessage(destinationId, message, scalarClock + delay));
+  }
+
+  public static void tick() {
+    scalarClock++;
+    onTick();
+  }
+
+  private static void onTick() {
+    while (!pq.isEmpty() && scalarClock >= pq.peek().exitTs) {
+      send(pq.peek().destinationId, pq.peek().message);
+      pq.poll();
+    }
+  }
+
   /** Contains the Destination details */
   static class Destination {
     ProcessId destinationId;
@@ -47,6 +65,18 @@ public final class SharedMemoryBus {
     public Destination(ProcessId destinationId, Listener client) {
       this.destinationId = destinationId;
       this.client = client;
+    }
+  }
+
+  public static class DelayedMessage {
+    ProcessId destinationId;
+    Message message;
+    int exitTs;
+
+    public DelayedMessage(ProcessId destinationId, Message message, int exitTs) {
+      this.destinationId = destinationId;
+      this.message = message;
+      this.exitTs = exitTs;
     }
   }
 }

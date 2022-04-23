@@ -1,6 +1,6 @@
 package edu.utd.dc.project2.core;
 
-import edu.utd.dc.project2.algo.leaderelection.floodmax.FloodMaxLeaderElectionManager;
+import edu.utd.dc.project2.algo.bfs.layered.LayeredBfsManager;
 import edu.utd.dc.project2.constants.GlobalConstants;
 import edu.utd.dc.project2.constants.LogLevel;
 import edu.utd.dc.project2.core.io.sharedmemory.Listener;
@@ -16,7 +16,7 @@ import java.util.List;
  *
  * <p>Uses Template pattern.
  */
-public abstract class SyncProcess implements Listener, Runnable {
+public abstract class ASyncProcess implements Listener, Runnable {
 
   private final ProcessId processId;
   private final List<ProcessId> neighbours;
@@ -24,13 +24,13 @@ public abstract class SyncProcess implements Listener, Runnable {
   private final List<Message> currRoundReceivedMessages;
   protected List<Message> prevRoundReceivedMessages;
 
-  private boolean canStartRound;
+  private boolean canStartNextPhase;
   private boolean isTerminated;
   private int roundNumber;
 
-  public SyncProcess(ProcessId processId) {
+  public ASyncProcess(ProcessId processId) {
     this.isTerminated = false;
-    this.canStartRound = false;
+    this.canStartNextPhase = false;
 
     this.neighbours = new ArrayList<>();
     this.processId = processId;
@@ -41,11 +41,10 @@ public abstract class SyncProcess implements Listener, Runnable {
   }
 
   /**
-   * Invoked by the {@link FloodMaxLeaderElectionManager#electLeader()} after a fixed interval (Sync
-   * Clock).
+   * Invoked by the {@link LayeredBfsManager#buildBFSTree()} after a fixed interval (Sync Clock).
    */
-  public void enableNextRound() {
-    this.canStartRound = true;
+  public void enableNextPhase() {
+    this.canStartNextPhase = true;
 
     // This is to avoid concurrent modification
     this.prevRoundReceivedMessages.clear();
@@ -59,22 +58,22 @@ public abstract class SyncProcess implements Listener, Runnable {
   /**
    * Endless while loop util terminated. If you can start a new round, it invokes {@link
    * #handleOutgoing()} and then goes to {@link #syncWait()}. It will be in wait state untill {@link
-   * #syncNotify()} is invoked from the {@link #canStartRound}.
+   * #syncNotify()} is invoked from the {@link #canStartNextPhase}.
    */
   @Override
   public void run() {
 
     while (!isTerminated) {
 
-      if (this.canStartRound) startNextRound();
-      this.canStartRound = false;
+      if (this.canStartNextPhase) startNextPhase();
+      this.canStartNextPhase = false;
 
       syncWait();
     }
   }
 
   /** Template pattern. */
-  private void startNextRound() {
+  private void startNextPhase() {
 
     handlePreRound(roundNumber);
     handleIncoming();
@@ -93,12 +92,16 @@ public abstract class SyncProcess implements Listener, Runnable {
     SharedMemoryBus.send(destinationId, message);
   }
 
+  protected void send(ProcessId destinationId, Message message, int delay) {
+    SharedMemoryBus.send(destinationId, message, delay);
+  }
+
   @Override
   public void onReceive(Message message) {
     this.currRoundReceivedMessages.add(message);
   }
 
-  public void addNeighbour(SyncProcess neighbourProcess) {
+  public void addNeighbour(ASyncProcess neighbourProcess) {
     this.neighbours.add(neighbourProcess.processId);
     SharedMemoryBus.register(this.processId, neighbourProcess.processId, neighbourProcess);
   }

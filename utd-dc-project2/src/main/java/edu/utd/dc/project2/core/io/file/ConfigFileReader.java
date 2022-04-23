@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /** Contains Parser logic for reading config file and creating adjList etc from the content. */
 public class ConfigFileReader {
@@ -17,6 +18,8 @@ public class ConfigFileReader {
 
   private List<ProcessId> processIdList;
   private int size;
+
+  private int root;
 
   public ConfigFileReader(String configFileName) {
 
@@ -37,31 +40,22 @@ public class ConfigFileReader {
 
           if (lineCounter == 1) {
             size = Integer.parseInt(line);
-          } else if (lineCounter == 2) {
-
-            String[] tokens = line.split("#")[0].split(" ");
 
             processIdList =
-                Arrays.stream(tokens)
-                    .mapToInt(Integer::parseInt)
-                    .mapToObj(ProcessId::new)
-                    .collect(Collectors.toList());
+                IntStream.range(1, size).mapToObj(ProcessId::new).collect(Collectors.toList());
 
-          } else if (lineCounter >= 3 && lineCounter <= 2 + size) {
+          } else if (lineCounter == 2) {
+            root = Integer.parseInt(line) - 1;
+          } else if (lineCounter > 2 && lineCounter <= 2 + size) {
 
             String[] tokens = line.split("#")[0].split(" ");
 
             Integer keyIdx = (lineCounter - 1 - 2);
             adjList.putIfAbsent(keyIdx, new ArrayList<>());
 
-            adjList
-                .get(keyIdx)
-                .addAll(
-                    Arrays.stream(tokens)
-                        .mapToInt(Integer::parseInt)
-                        .map(e -> e - 1)
-                        .boxed()
-                        .collect(Collectors.toList()));
+            for (int i = 0; i < tokens.length; i++) {
+              if (tokens[i].equals("1")) adjList.get(keyIdx).add(i);
+            }
 
           } else {
             break;
@@ -88,11 +82,16 @@ public class ConfigFileReader {
     return processIdList;
   }
 
+  public int getRoot() {
+    return root;
+  }
+
   @Override
   public String toString() {
 
     StringBuilder sb = new StringBuilder();
     sb.append("Size: ").append(getSize()).append("\n");
+    sb.append("Root: ").append(getRoot()).append("\n");
     getAdjList()
         .forEach(
             (k, v) -> {
