@@ -42,7 +42,7 @@ public class LayeredBfsManager {
 
     int root = configFileReader.getRoot();
     layeredBfsProcesses[root].bfsTree.isRoot = true;
-    layeredBfsProcesses[root].enableNextPhase();
+    layeredBfsProcesses[root].enableNextPhase(); // TODO: Suggestion
 
     while (true) {
 

@@ -94,7 +94,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
 
   // DONE
   private void handleNewPhaseMessage(ProcessId source, NewPhasePayload payload) {
-    enableNextPhase();
+    enableNextPhase(); // TODO: suggestions
 
     if (payload.depth == 1) {
       getNeighbours()
@@ -157,17 +157,17 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
 
   private synchronized void handleIAmDoneMessage(ProcessId source, IAmDonePayload payload) {
     this.iAmDoneProcessIdSet.add(source);
-    this.isNewNodeDiscovered = isNewNodeDiscovered || payload.isNewNodeDiscovered;
+    this.isNewNodeDiscovered = isNewNodeDiscovered || payload.isNewNodeDiscovered; // TODO:
 
     if (this.iAmDoneProcessIdSet.size() == getNeighbours().size()) {
       if (bfsTree.isRoot) {
         if (!isNewNodeDiscovered) terminate(getProcessId());
-        else enableNextPhase();
+        else enableNextPhase(); //TODO
       } else
         send(
             bfsTree.parentId, new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)));
 
-      isNewNodeDiscovered = false;
+      isNewNodeDiscovered = false; //TODO:
     }
   }
 
