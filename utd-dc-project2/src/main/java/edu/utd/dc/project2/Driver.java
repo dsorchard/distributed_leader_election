@@ -1,7 +1,7 @@
-package edu.utd.dc.project0;
+package edu.utd.dc.project2;
 
-import edu.utd.dc.project0.algo.leaderelection.floodmax.FloodMaxLeaderElectionManager;
-import edu.utd.dc.project0.core.io.file.ConfigFileReader;
+import edu.utd.dc.project2.algo.leaderelection.floodmax.FloodMaxLeaderElectionManager;
+import edu.utd.dc.project2.core.io.file.ConfigFileReader;
 
 public class Driver {
 

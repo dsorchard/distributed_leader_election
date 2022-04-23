@@ -1,11 +1,11 @@
 package edu.utd.dc.project2.algo.leaderelection.floodmax;
 
-import edu.utd.dc.project0.algo.leaderelection.floodmax.FloodMaxLeaderElectionSyncProcess;
-import edu.utd.dc.project0.constants.GlobalConstants;
-import edu.utd.dc.project0.constants.LogLevel;
-import edu.utd.dc.project0.core.io.file.ConfigFileReader;
-import edu.utd.dc.project0.core.support.ProcessId;
-import edu.utd.dc.project0.utils.TimeUtils;
+import edu.utd.dc.project2.algo.leaderelection.floodmax.FloodMaxLeaderElectionSyncProcess;
+import edu.utd.dc.project2.constants.GlobalConstants;
+import edu.utd.dc.project2.constants.LogLevel;
+import edu.utd.dc.project2.core.io.file.ConfigFileReader;
+import edu.utd.dc.project2.core.support.ProcessId;
+import edu.utd.dc.project2.utils.TimeUtils;
 
 import java.util.List;
 import java.util.Map;

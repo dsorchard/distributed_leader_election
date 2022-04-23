@@ -1,6 +1,6 @@
 package edu.utd.dc.project2.core.io.sharedmemory.domain;
 
-import edu.utd.dc.project0.core.support.ProcessId;
+import edu.utd.dc.project2.core.support.ProcessId;
 
 /** Message is transferred along the network. Contains _source metadata and payload. */
 public class Message {
