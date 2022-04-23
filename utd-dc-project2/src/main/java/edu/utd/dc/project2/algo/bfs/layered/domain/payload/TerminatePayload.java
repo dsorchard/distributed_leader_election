@@ -10,6 +10,6 @@ public class TerminatePayload {
 
   @Override
   public String toString() {
-    return "TokenPayload{" + "leaderId=" + leaderId + '}';
+    return "TerminatePayload{" + "leaderId=" + leaderId + '}';
   }
 }

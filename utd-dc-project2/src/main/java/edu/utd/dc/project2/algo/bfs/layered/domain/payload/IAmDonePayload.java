@@ -9,6 +9,6 @@ public class IAmDonePayload {
 
   @Override
   public String toString() {
-    return "IAmDonePayload{}";
+    return "IAmDonePayload{" + "isNewNodeDiscovered=" + isNewNodeDiscovered + '}';
   }
 }

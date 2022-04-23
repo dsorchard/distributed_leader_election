@@ -101,7 +101,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
           .forEach(
               neighbour -> {
                 if (neighbour.getID() != source.getID())
-                  send(neighbour, new Message(getProcessId(), new SearchPayload(leaderId)), delay);
+                  send(neighbour, new Message(getProcessId(), new SearchPayload()), delay);
               });
 
     } else {

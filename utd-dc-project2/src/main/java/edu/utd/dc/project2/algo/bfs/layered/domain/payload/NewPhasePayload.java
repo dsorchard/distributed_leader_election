@@ -10,6 +10,6 @@ public class NewPhasePayload {
 
   @Override
   public String toString() {
-    return "IAmDonePayload{}";
+    return "NewPhasePayload{" + "depth=" + depth + '}';
   }
 }
