@@ -7,6 +7,7 @@ import edu.utd.dc.project2.core.io.sharedmemory.Listener;
 import edu.utd.dc.project2.core.io.sharedmemory.SharedMemoryBus;
 import edu.utd.dc.project2.core.io.sharedmemory.domain.Message;
 import edu.utd.dc.project2.core.support.ProcessId;
+import edu.utd.dc.project2.utils.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,10 +52,7 @@ public abstract class ASyncProcess implements Listener, Runnable {
   protected abstract void handleIncoming(Message message);
 
   protected void send(ProcessId destinationId, Message message) {
-    SharedMemoryBus.send(destinationId, message);
-  }
-
-  protected void send(ProcessId destinationId, Message message, int delay) {
+    int delay = RandomUtils.valueBetween(1, 12);
     SharedMemoryBus.send(destinationId, message, delay);
   }
 

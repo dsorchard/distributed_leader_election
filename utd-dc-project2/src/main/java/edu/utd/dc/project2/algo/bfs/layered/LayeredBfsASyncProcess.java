@@ -8,9 +8,7 @@ import edu.utd.dc.project2.core.ASyncProcess;
 import edu.utd.dc.project2.core.io.sharedmemory.domain.Message;
 import edu.utd.dc.project2.core.support.ProcessId;
 import edu.utd.dc.project2.tree.TreeNode;
-import edu.utd.dc.project2.utils.RandomUtils;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,8 +23,6 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
   private int leaderId;
 
   private boolean isNewNodeDiscovered = false;
-
-  int delay = RandomUtils.valueBetween(1, 12);
 
   public LayeredBfsASyncProcess(ProcessId processId) {
     super(processId);
@@ -67,17 +63,16 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     this.bfsTree.isRoot = true;
 
     getNeighbours()
-        .forEach(
-            neighbour -> send(neighbour, new Message(getProcessId(), new SearchPayload()), delay));
+        .forEach(neighbour -> send(neighbour, new Message(getProcessId(), new SearchPayload())));
   }
 
   // DONE
   private synchronized void handleSearchMessage(ProcessId source) {
     if (!bfsTree.isRoot && bfsTree.parentId == null) {
       bfsTree.parentId = source;
-      send(source, new Message(getProcessId(), new PAckPayload()), delay);
+      send(source, new Message(getProcessId(), new PAckPayload()));
     } else {
-      send(source, new Message(getProcessId(), new NAckPayload()), delay);
+      send(source, new Message(getProcessId(), new NAckPayload()));
     }
   }
 
@@ -97,8 +92,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
 
         send(
             this.bfsTree.parentId,
-            new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)),
-            delay);
+            new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)));
       }
 
       reset();
@@ -119,8 +113,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
 
         send(
             this.bfsTree.parentId,
-            new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)),
-            delay);
+            new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)));
       }
 
       reset();
@@ -160,8 +153,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
             neighbour ->
                 send(
                     neighbour,
-                    new Message(getProcessId(), new NewPhasePayload(this.depthExplored - 1)),
-                    delay));
+                    new Message(getProcessId(), new NewPhasePayload(this.depthExplored - 1))));
   }
 
   private void handleNewPhaseMessage(ProcessId source, NewPhasePayload payload) {
@@ -169,22 +161,15 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     if (payload.depth == 0) {
 
       getNeighbours()
-          .forEach(
-              neighbour -> {
-                // if (neighbour.getID() != source.getID())
-                send(neighbour, new Message(getProcessId(), new SearchPayload()), delay);
-              });
+          .forEach(neighbour -> send(neighbour, new Message(getProcessId(), new SearchPayload())));
 
     } else {
       getNeighbours()
           .forEach(
-              neighbour -> {
-                // if (neighbour.getID() != source.getID())
-                send(
-                    neighbour,
-                    new Message(getProcessId(), new NewPhasePayload(payload.depth - 1)),
-                    delay);
-              });
+              neighbour ->
+                  send(
+                      neighbour,
+                      new Message(getProcessId(), new NewPhasePayload(payload.depth - 1))));
     }
   }
 

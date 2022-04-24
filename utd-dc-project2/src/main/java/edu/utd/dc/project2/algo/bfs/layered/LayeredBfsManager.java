@@ -40,8 +40,12 @@ public class LayeredBfsManager {
       threads[i].start();
     }
 
+    // Initiate algorithm from root.
     int root = configFileReader.getRoot();
-    layeredBfsProcesses[root].initiate();
+    LayeredBfsASyncProcess rootProcess = layeredBfsProcesses[root];
+    rootProcess.initiate();
+
+    // Endless while loop
     while (true) {
 
       TimeUtils.sleep(500);
@@ -56,9 +60,7 @@ public class LayeredBfsManager {
       SharedMemoryBus.tick();
     }
 
-    // need not be arr[0]. every node would be aware of the leaderId, so pick any process and get
-    // the leaderId.
-    return layeredBfsProcesses[0].getLeaderId();
+    return rootProcess.getLeaderId();
   }
 
   private boolean isAllThreadsDead(Thread[] threads) {
