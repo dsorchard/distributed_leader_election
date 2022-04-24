@@ -40,7 +40,7 @@ public abstract class ASyncProcess implements Listener, Runnable {
   protected abstract void handleIncoming(Message message);
 
   protected void send(ProcessId destinationId, Message message) {
-    int delay = 1;//RandomUtils.valueBetween(1, 12);
+    int delay = RandomUtils.valueBetween(1, 12);
     SharedMemoryBus.send(destinationId, message, delay);
   }
 
