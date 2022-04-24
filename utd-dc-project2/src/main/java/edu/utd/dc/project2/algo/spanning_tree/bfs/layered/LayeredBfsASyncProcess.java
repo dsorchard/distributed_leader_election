@@ -41,7 +41,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
   }
 
   @Override
-  public void handleIncoming(Message message) {
+  public synchronized void handleIncoming(Message message) {
 
     log(LogLevel.DEBUG, "Receiver " + getProcessId() + " " + message.toString());
 
@@ -70,13 +70,13 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
   }
 
   // DONE
-  private synchronized void handleSearchMessage(ProcessId source) {
+  private void handleSearchMessage(ProcessId source) {
 
     if (!bfsTree.isRoot && bfsTree.parentId == null) {
       bfsTree.parentId = source;
-      send(source, new Message(getProcessId(), new PAckPayload(getProcessId().getID())));
+      send(source, new Message(getProcessId(), new PAckPayload()));
     } else {
-      send(source, new Message(getProcessId(), new NAckPayload(getProcessId().getID())));
+      send(source, new Message(getProcessId(), new NAckPayload()));
     }
   }
 
@@ -88,7 +88,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
   }
 
   // DONE
-  private synchronized void handleNAckMessage(ProcessId source) {
+  private void handleNAckMessage(ProcessId source) {
     this.nAckProcessIdSet.add(source.getID());
     handleAckMessage(source);
   }
@@ -120,8 +120,8 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     isNewNodeDiscovered = false;
   }
 
-  private synchronized void handleIAmDoneMessage(ProcessId source, IAmDonePayload payload) {
-    this.leaderId = Math.max(leaderId, source.getID());
+  private void handleIAmDoneMessage(ProcessId source, IAmDonePayload payload) {
+    this.leaderId = Math.max(leaderId, payload.maxProcessId);
 
     this.iAmDoneProcessIdSet.add(source.getID());
     this.isNewNodeDiscovered = isNewNodeDiscovered || payload.isNewNodeDiscovered;
@@ -159,7 +159,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
           .forEach(
               neighbour -> {
                 if (source.getID() == neighbour.getID()) {
-                  nAckProcessIdSet.add(source.getID());
+                  send(getProcessId(), new Message(source, new NAckPayload()));
                 } else {
                   send(neighbour, new Message(getProcessId(), new SearchPayload()));
                 }
@@ -170,7 +170,9 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
           .forEach(
               neighbour -> {
                 if (source.getID() == neighbour.getID()) {
-                  iAmDoneProcessIdSet.add(source.getID());
+                  send(
+                      getProcessId(),
+                      new Message(source, new IAmDonePayload(false, source.getID())));
                 } else {
                   send(
                       neighbour,
@@ -189,8 +191,8 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
    *  2. invoke termination procedure.
    * </pre>
    */
-  private synchronized void handleTerminateMessage(ProcessId source, TerminatePayload payload) {
-    this.leaderId = payload.leaderId;
+  private void handleTerminateMessage(ProcessId source, TerminatePayload payload) {
+    this.leaderId = Math.max(leaderId, payload.leaderId);
     terminate(source);
   }
 
