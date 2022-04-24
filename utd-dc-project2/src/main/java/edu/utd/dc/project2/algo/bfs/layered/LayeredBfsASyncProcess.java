@@ -97,17 +97,16 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
         if (!isNewNodeDiscovered) terminate(getProcessId());
         else startNextPhase();
       } else {
-
         send(
             this.bfsTree.parentId,
             new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)));
       }
 
-      reset();
+      resetStateVariables();
     }
   }
 
-  private void reset() {
+  private void resetStateVariables() {
     pAckProcessIdSet.clear();
     nAckProcessIdSet.clear();
     iAmDoneProcessIdSet.clear();
@@ -128,7 +127,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
             bfsTree.parentId, new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)));
       }
 
-      reset();
+      resetStateVariables();
     }
   }
 
@@ -207,6 +206,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
 
     System.out.println(
         "Output : " + "Process ID = " + getProcessId().getID() + " Children = " + bfsTree.children);
+
     setTerminated(true);
   }
 
