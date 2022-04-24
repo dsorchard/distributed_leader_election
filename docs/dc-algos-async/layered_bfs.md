@@ -87,10 +87,8 @@ Layered BFS builds BFS Tree in Asynchronous general network. The algo is as foll
 This information is used to build the layer 1, of our tree.
 - When root receives all the ACK messages, it goes to the next phase.
 - in the subsequent phases k, the root sends `NewPhaseMessage`. The message goes through the `bfs tree` children 
-util the depth k is reached.
-
-[//]: # (  Need to verify how Messages reaches the depth k. is it using BFS tree or simple broadcast.
-At present, we are using broadcast.)
+util the depth k is reached. **NOTE**: If the current node (in the bfs tree) doesn't have any children further, we return
+`IAMDone` stating no new neighbour found.
 - Upon reaching the depth k, it sends `Search Message` to explore the next layer.
 - If the neighbour already has the bfs tree parent assigned, it responds with a `NACK`.
 - If the neighbours bfs tree parent is not assigned, it response with `PACK`.
