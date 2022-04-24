@@ -21,12 +21,10 @@ public abstract class ASyncProcess implements Listener, Runnable {
   private final ProcessId processId;
   private final List<ProcessId> neighbours;
 
-  private boolean canStartNextPhase;
   private boolean isTerminated;
 
   public ASyncProcess(ProcessId processId) {
     this.isTerminated = false;
-    this.canStartNextPhase = false;
 
     this.neighbours = new ArrayList<>();
     this.processId = processId;
@@ -35,10 +33,6 @@ public abstract class ASyncProcess implements Listener, Runnable {
   /**
    * Invoked by the {@link LayeredBfsManager#buildBFSTree()} after a fixed interval (Sync Clock).
    */
-  public void enableNextPhase() {
-    this.canStartNextPhase = true;
-    syncNotify();
-  }
 
   /**
    * Endless while loop util terminated. If you can start a new round, it invokes {@link
@@ -47,27 +41,12 @@ public abstract class ASyncProcess implements Listener, Runnable {
    */
   @Override
   public void run() {
-
     while (!isTerminated) {
-
-      if (this.canStartNextPhase) startNextPhase();
-      this.canStartNextPhase = false;
-
       syncWait();
     }
   }
 
-  /** Template pattern. */
-  // TODO: Modify
-
-  private void startNextPhase() {
-    handlePrePhase();
-    handleOutgoing();
-  }
-
-  protected abstract void handlePrePhase();
-
-  protected abstract void handleOutgoing();
+  public abstract void initiate();
 
   protected abstract void handleIncoming(Message message);
 
@@ -81,6 +60,7 @@ public abstract class ASyncProcess implements Listener, Runnable {
 
   @Override
   public void onReceive(Message message) {
+    syncNotify();
     this.handleIncoming(message);
   }
 

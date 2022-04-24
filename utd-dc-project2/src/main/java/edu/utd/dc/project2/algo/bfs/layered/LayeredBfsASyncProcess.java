@@ -15,13 +15,13 @@ import java.util.Set;
 
 public class LayeredBfsASyncProcess extends ASyncProcess {
 
-  private int depth = 0;
-  public final TreeNode<ProcessId> bfsTree;
+  private final TreeNode<ProcessId> bfsTree;
   private final Set<ProcessId> iAmDoneProcessIdSet;
 
   private final Set<ProcessId> pAckProcessIdSet;
   private final Set<ProcessId> nAckProcessIdSet;
 
+  private int depthExplored;
   private int leaderId;
 
   private boolean isNewNodeDiscovered = false;
@@ -37,24 +37,14 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     this.iAmDoneProcessIdSet = new HashSet<>();
     this.pAckProcessIdSet = new HashSet<>();
     this.nAckProcessIdSet = new HashSet<>();
+
+    this.depthExplored = 0;
   }
 
-  @Override
-  protected void handlePrePhase() {
+  protected void handlePrePhase(int phaseNumber) {
     this.iAmDoneProcessIdSet.clear();
-    this.depth++;
   }
 
-  /**
-   * handles incoming message in the previous round.
-   *
-   * <pre>
-   *     NOTE: here we are using the previous round messages.
-   *
-   *     IN (prev), OUT ---> IN (prev), OUT --> IN (prev), OUT
-   *        round 0             round 1            round 2
-   * </pre>
-   */
   @Override
   public void handleIncoming(Message message) {
 
@@ -75,46 +65,14 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     }
   }
 
-  /**
-   * Handles outgoing messages.
-   *
-   * <p>NOTE: The outgoing messages take into account, the leaderId received in the previous round.
-   */
+  // DONE
   @Override
-  public void handleOutgoing() {
+  public void initiate() {
+    this.bfsTree.isRoot = true;
 
     getNeighbours()
         .forEach(
-            neighbour ->
-                send(
-                    neighbour,
-                    new Message(getProcessId(), new NewPhasePayload(this.depth)),
-                    delay));
-  }
-
-  // DONE
-  private void handleNewPhaseMessage(ProcessId source, NewPhasePayload payload) {
-    enableNextPhase(); // TODO: suggestions
-
-    if (payload.depth == 1) {
-      getNeighbours()
-          .forEach(
-              neighbour -> {
-                if (neighbour.getID() != source.getID())
-                  send(neighbour, new Message(getProcessId(), new SearchPayload()), delay);
-              });
-
-    } else {
-      getNeighbours()
-          .forEach(
-              neighbour -> {
-                if (neighbour.getID() != source.getID())
-                  send(
-                      neighbour,
-                      new Message(getProcessId(), new NewPhasePayload(payload.depth - 1)),
-                      delay);
-              });
-    }
+            neighbour -> send(neighbour, new Message(getProcessId(), new SearchPayload()), delay));
   }
 
   // DONE
@@ -134,11 +92,19 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     this.pAckProcessIdSet.add(source);
 
     if (pAckProcessIdSet.size() + nAckProcessIdSet.size() == getNeighbours().size()) {
-      boolean isNewNodesDiscovered = !pAckProcessIdSet.isEmpty();
-      send(
-          this.bfsTree.parentId,
-          new Message(getProcessId(), new IAmDonePayload(isNewNodesDiscovered)),
-          delay);
+
+      if (bfsTree.isRoot) {
+        startNextPhase();
+      } else {
+
+        this.isNewNodeDiscovered = !pAckProcessIdSet.isEmpty();
+        send(
+            this.bfsTree.parentId,
+            new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)),
+            delay);
+      }
+
+      reset();
     }
   }
 
@@ -147,12 +113,28 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     this.nAckProcessIdSet.add(source);
 
     if (pAckProcessIdSet.size() + nAckProcessIdSet.size() == getNeighbours().size()) {
-      boolean isNewNodesDiscovered = !pAckProcessIdSet.isEmpty();
-      send(
-          this.bfsTree.parentId,
-          new Message(getProcessId(), new IAmDonePayload(isNewNodesDiscovered)),
-          delay);
+
+      if (bfsTree.isRoot) {
+        startNextPhase();
+      } else {
+
+        this.isNewNodeDiscovered = !pAckProcessIdSet.isEmpty();
+        send(
+            this.bfsTree.parentId,
+            new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)),
+            delay);
+      }
+
+      reset();
     }
+  }
+
+  private void reset() {
+    pAckProcessIdSet.clear();
+    nAckProcessIdSet.clear();
+    iAmDoneProcessIdSet.clear();
+
+    isNewNodeDiscovered = false;
   }
 
   private synchronized void handleIAmDoneMessage(ProcessId source, IAmDonePayload payload) {
@@ -162,12 +144,50 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     if (this.iAmDoneProcessIdSet.size() == getNeighbours().size()) {
       if (bfsTree.isRoot) {
         if (!isNewNodeDiscovered) terminate(getProcessId());
-        else enableNextPhase(); //TODO
-      } else
+        else startNextPhase();
+      } else {
         send(
             bfsTree.parentId, new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)));
+      }
 
-      isNewNodeDiscovered = false; //TODO:
+      reset();
+      isNewNodeDiscovered = false; // TODO:
+    }
+  }
+
+  private void startNextPhase() {
+    this.depthExplored++;
+
+    getNeighbours()
+        .forEach(
+            neighbour ->
+                send(
+                    neighbour,
+                    new Message(getProcessId(), new NewPhasePayload(this.depthExplored - 1)),
+                    delay));
+  }
+
+  private void handleNewPhaseMessage(ProcessId source, NewPhasePayload payload) {
+
+    if (payload.depth == 0) {
+
+      getNeighbours()
+          .forEach(
+              neighbour -> {
+                if (neighbour.getID() != source.getID())
+                  send(neighbour, new Message(getProcessId(), new SearchPayload()), delay);
+              });
+
+    } else {
+      getNeighbours()
+          .forEach(
+              neighbour -> {
+                if (neighbour.getID() != source.getID())
+                  send(
+                      neighbour,
+                      new Message(getProcessId(), new NewPhasePayload(payload.depth - 1)),
+                      delay);
+              });
     }
   }
 
