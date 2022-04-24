@@ -11,13 +11,14 @@ public class Driver {
     String configFileName = args[0];
     ConfigFileReader configFileReader = new ConfigFileReader(configFileName);
 
-    // Run FloodMax Leader Election Manager
+    // Run Layered BFS & find max processId
     LayeredBfsManager layeredBFSManager = new LayeredBfsManager(configFileReader);
     int leaderId = layeredBFSManager.buildBFSTreeAndReturnLeader();
 
     // Print Leader
     System.out.println(leaderId);
 
+    // Print Telemetry
     MessageTelemetryUtils.print();
   }
 }
