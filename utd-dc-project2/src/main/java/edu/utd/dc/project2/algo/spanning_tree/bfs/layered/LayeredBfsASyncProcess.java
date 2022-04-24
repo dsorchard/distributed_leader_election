@@ -71,11 +71,12 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
 
   // DONE
   private synchronized void handleSearchMessage(ProcessId source) {
+
     if (!bfsTree.isRoot && bfsTree.parentId == null) {
       bfsTree.parentId = source;
-      send(source, new Message(getProcessId(), new PAckPayload()));
+      send(source, new Message(getProcessId(), new PAckPayload(getProcessId().getID())));
     } else {
-      send(source, new Message(getProcessId(), new NAckPayload()));
+      send(source, new Message(getProcessId(), new NAckPayload(getProcessId().getID())));
     }
   }
 
@@ -83,16 +84,18 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
   private void handlePAckMessage(ProcessId source) {
     this.bfsTree.children.add(source);
     this.pAckProcessIdSet.add(source.getID());
-    handleAckMessage();
+    handleAckMessage(source);
   }
 
   // DONE
   private synchronized void handleNAckMessage(ProcessId source) {
     this.nAckProcessIdSet.add(source.getID());
-    handleAckMessage();
+    handleAckMessage(source);
   }
 
-  private void handleAckMessage() {
+  private void handleAckMessage(ProcessId source) {
+    this.leaderId = Math.max(leaderId, source.getID());
+
     if (pAckProcessIdSet.size() + nAckProcessIdSet.size() == getNeighbours().size()) {
       this.isNewNodeDiscovered = !pAckProcessIdSet.isEmpty();
 
@@ -102,7 +105,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
       } else {
         send(
             this.bfsTree.parentId,
-            new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)));
+            new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered, leaderId)));
       }
 
       resetStateVariables();
@@ -118,6 +121,8 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
   }
 
   private synchronized void handleIAmDoneMessage(ProcessId source, IAmDonePayload payload) {
+    this.leaderId = Math.max(leaderId, source.getID());
+
     this.iAmDoneProcessIdSet.add(source.getID());
     this.isNewNodeDiscovered = isNewNodeDiscovered || payload.isNewNodeDiscovered;
 
@@ -127,7 +132,8 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
         else startNextPhase();
       } else {
         send(
-            bfsTree.parentId, new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)));
+            bfsTree.parentId,
+            new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered, leaderId)));
       }
 
       resetStateVariables();
