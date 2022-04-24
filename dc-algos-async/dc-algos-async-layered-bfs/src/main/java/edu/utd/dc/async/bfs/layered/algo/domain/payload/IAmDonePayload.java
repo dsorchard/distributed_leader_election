@@ -1,4 +1,4 @@
-package edu.utd.dc.async.bfs.layered.layered.domain.payload;
+package edu.utd.dc.async.bfs.layered.algo.domain.payload;
 
 public class IAmDonePayload {
   public boolean isNewNodeDiscovered;

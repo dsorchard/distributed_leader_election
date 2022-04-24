@@ -1,9 +1,9 @@
-package edu.utd.dc.async.bfs.layered.core.io.sharedmemory;
+package edu.utd.dc.async.core.io.sharedmemory;
 
-import edu.utd.dc.async.bfs.layered.telemetry.MessageTelemetryUtils;
 import edu.utd.dc.common.design_pattern.listener.Listener;
 import edu.utd.dc.common.domain.io.Message;
 import edu.utd.dc.common.domain.support.ProcessId;
+import edu.utd.dc.common.telemetry.MessageTelemetryUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

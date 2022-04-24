@@ -1,4 +1,4 @@
-package edu.utd.dc.async.bfs.layered.telemetry;
+package edu.utd.dc.common.telemetry;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

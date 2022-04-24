@@ -1,8 +1,8 @@
 package edu.utd.dc.async.bfs.layered;
 
-import edu.utd.dc.async.bfs.layered.layered.LayeredBfsManager;
+import edu.utd.dc.async.bfs.layered.algo.LayeredBfsManager;
 import edu.utd.dc.async.bfs.layered.core.io.file.ConfigFileReader;
-import edu.utd.dc.async.bfs.layered.telemetry.MessageTelemetryUtils;
+import edu.utd.dc.common.telemetry.MessageTelemetryUtils;
 
 public class Driver {
 

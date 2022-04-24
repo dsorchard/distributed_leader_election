@@ -1,12 +1,13 @@
-package edu.utd.dc.async.bfs.layered.layered;
+package edu.utd.dc.async.bfs.layered.algo;
 
-import edu.utd.dc.async.bfs.layered.layered.domain.payload.IAmDonePayload;
-import edu.utd.dc.async.bfs.layered.layered.domain.payload.TerminatePayload;
-import edu.utd.dc.async.bfs.layered.layered.domain.payload.ack.NAckPayload;
-import edu.utd.dc.async.bfs.layered.layered.domain.payload.ack.PAckPayload;
-import edu.utd.dc.async.bfs.layered.layered.domain.payload.NewPhasePayload;
-import edu.utd.dc.async.bfs.layered.layered.domain.payload.SearchPayload;
-import edu.utd.dc.async.bfs.layered.core.ASyncProcess;
+import edu.utd.dc.async.bfs.layered.algo.domain.payload.IAmDonePayload;
+import edu.utd.dc.async.bfs.layered.algo.domain.payload.TerminatePayload;
+import edu.utd.dc.async.bfs.layered.algo.domain.payload.ack.NAckPayload;
+import edu.utd.dc.async.bfs.layered.algo.domain.payload.ack.PAckPayload;
+import edu.utd.dc.async.bfs.layered.algo.domain.payload.NewPhasePayload;
+import edu.utd.dc.async.bfs.layered.algo.domain.payload.SearchPayload;
+import edu.utd.dc.async.bfs.layered.constants.GlobalConstants;
+import edu.utd.dc.async.core.ASyncProcess;
 import edu.utd.dc.common.constants.LogLevel;
 import edu.utd.dc.common.domain.io.Message;
 import edu.utd.dc.common.domain.support.ProcessId;
@@ -224,5 +225,9 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
   /** Returns the current leader ID */
   public int getLeaderId() {
     return leaderId;
+  }
+
+  protected void log(LogLevel logLevel, String message) {
+    if (logLevel.getValue() >= GlobalConstants.LOG_LEVEL.getValue()) System.out.println(message);
   }
 }

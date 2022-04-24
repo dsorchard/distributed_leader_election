@@ -1,9 +1,6 @@
-package edu.utd.dc.async.bfs.layered.core;
+package edu.utd.dc.async.core;
 
-import edu.utd.dc.async.bfs.layered.constants.GlobalConstants;
-
-import edu.utd.dc.async.bfs.layered.core.io.sharedmemory.SharedMemoryBus;
-
+import edu.utd.dc.async.core.io.sharedmemory.SharedMemoryBus;
 import edu.utd.dc.common.constants.LogLevel;
 import edu.utd.dc.common.design_pattern.listener.Listener;
 import edu.utd.dc.common.domain.io.Message;
@@ -88,9 +85,5 @@ public abstract class ASyncProcess implements Listener, Runnable {
     synchronized (this) {
       notify();
     }
-  }
-
-  protected void log(LogLevel logLevel, String message) {
-    if (logLevel.getValue() >= GlobalConstants.LOG_LEVEL.getValue()) System.out.println(message);
   }
 }

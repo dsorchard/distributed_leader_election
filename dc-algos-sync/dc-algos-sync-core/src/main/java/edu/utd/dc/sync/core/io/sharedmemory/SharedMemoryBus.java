@@ -1,4 +1,4 @@
-package edu.utd.dc.sync.flood_max.core.io.sharedmemory;
+package edu.utd.dc.sync.core.io.sharedmemory;
 
 import edu.utd.dc.common.design_pattern.listener.Listener;
 import edu.utd.dc.common.domain.io.Message;

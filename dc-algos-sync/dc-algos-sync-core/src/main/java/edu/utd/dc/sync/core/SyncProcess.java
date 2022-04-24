@@ -1,4 +1,4 @@
-package edu.utd.dc.sync.flood_max.core;
+package edu.utd.dc.sync.core;
 
 import edu.utd.dc.common.constants.LogLevel;
 import edu.utd.dc.common.design_pattern.listener.Listener;

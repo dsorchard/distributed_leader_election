@@ -1,4 +1,4 @@
-package edu.utd.dc.async.bfs.layered.layered.domain.payload;
+package edu.utd.dc.async.bfs.layered.algo.domain.payload;
 
 /** Contains the max leader id seen so far */
 public class SearchPayload {
