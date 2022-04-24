@@ -1,4 +1,4 @@
-package edu.utd.dc.sync.flood_max.floodmax.domain.payload;
+package edu.utd.dc.sync.flood_max.algo.domain.payload;
 
 /** Contains the max leader id seen so far */
 public class SearchPayload {

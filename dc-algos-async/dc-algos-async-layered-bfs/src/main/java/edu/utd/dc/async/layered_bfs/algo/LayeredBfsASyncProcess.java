@@ -1,12 +1,12 @@
-package edu.utd.dc.async.bfs.layered.algo;
+package edu.utd.dc.async.layered_bfs.algo;
 
-import edu.utd.dc.async.bfs.layered.algo.domain.payload.IAmDonePayload;
-import edu.utd.dc.async.bfs.layered.algo.domain.payload.TerminatePayload;
-import edu.utd.dc.async.bfs.layered.algo.domain.payload.ack.NAckPayload;
-import edu.utd.dc.async.bfs.layered.algo.domain.payload.ack.PAckPayload;
-import edu.utd.dc.async.bfs.layered.algo.domain.payload.NewPhasePayload;
-import edu.utd.dc.async.bfs.layered.algo.domain.payload.SearchPayload;
-import edu.utd.dc.async.bfs.layered.constants.GlobalConstants;
+import edu.utd.dc.async.layered_bfs.algo.domain.payload.IAmDonePayload;
+import edu.utd.dc.async.layered_bfs.algo.domain.payload.TerminatePayload;
+import edu.utd.dc.async.layered_bfs.algo.domain.payload.ack.NAckPayload;
+import edu.utd.dc.async.layered_bfs.algo.domain.payload.ack.PAckPayload;
+import edu.utd.dc.async.layered_bfs.algo.domain.payload.NewPhasePayload;
+import edu.utd.dc.async.layered_bfs.algo.domain.payload.SearchPayload;
+import edu.utd.dc.async.layered_bfs.constants.GlobalConstants;
 import edu.utd.dc.async.core.ASyncProcess;
 import edu.utd.dc.common.constants.LogLevel;
 import edu.utd.dc.common.domain.io.Message;

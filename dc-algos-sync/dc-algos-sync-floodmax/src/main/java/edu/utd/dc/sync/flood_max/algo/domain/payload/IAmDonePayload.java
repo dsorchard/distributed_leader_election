@@ -1,4 +1,4 @@
-package edu.utd.dc.sync.flood_max.floodmax.domain.payload;
+package edu.utd.dc.sync.flood_max.algo.domain.payload;
 
 /** If you get IAM done message from your neighbour, then the neighbour is child of the node. */
 public class IAmDonePayload {

@@ -1,4 +1,4 @@
-package edu.utd.dc.sync.flood_max.floodmax;
+package edu.utd.dc.sync.flood_max.algo;
 
 import edu.utd.dc.common.constants.LogLevel;
 import edu.utd.dc.common.domain.io.Message;
@@ -6,10 +6,10 @@ import edu.utd.dc.common.domain.support.ProcessId;
 import edu.utd.dc.common.tree.TreeNode;
 import edu.utd.dc.sync.core.SyncProcess;
 import edu.utd.dc.sync.flood_max.constants.GlobalConstants;
-import edu.utd.dc.sync.flood_max.floodmax.domain.payload.IAmDonePayload;
-import edu.utd.dc.sync.flood_max.floodmax.domain.payload.RejectPayload;
-import edu.utd.dc.sync.flood_max.floodmax.domain.payload.SearchPayload;
-import edu.utd.dc.sync.flood_max.floodmax.domain.payload.TerminatePayload;
+import edu.utd.dc.sync.flood_max.algo.domain.payload.IAmDonePayload;
+import edu.utd.dc.sync.flood_max.algo.domain.payload.RejectPayload;
+import edu.utd.dc.sync.flood_max.algo.domain.payload.SearchPayload;
+import edu.utd.dc.sync.flood_max.algo.domain.payload.TerminatePayload;
 
 import java.util.HashSet;
 import java.util.Set;

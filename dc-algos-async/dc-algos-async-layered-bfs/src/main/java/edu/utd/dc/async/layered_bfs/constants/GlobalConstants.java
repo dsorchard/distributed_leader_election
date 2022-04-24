@@ -1,4 +1,4 @@
-package edu.utd.dc.async.bfs.layered.constants;
+package edu.utd.dc.async.layered_bfs.constants;
 
 import edu.utd.dc.common.constants.LogLevel;
 

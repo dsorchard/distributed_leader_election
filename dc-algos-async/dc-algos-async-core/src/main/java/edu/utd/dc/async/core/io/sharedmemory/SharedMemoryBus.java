@@ -5,12 +5,14 @@ import edu.utd.dc.common.domain.io.Message;
 import edu.utd.dc.common.domain.support.ProcessId;
 import edu.utd.dc.common.telemetry.MessageTelemetryUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 /** Singleton class responsible for handling messages in the network. */
-public final class SharedMemoryBus {
+public class SharedMemoryBus {
 
   static int scalarClock = 1;
 

@@ -1,7 +1,7 @@
-package edu.utd.dc.async.bfs.layered.algo;
+package edu.utd.dc.async.layered_bfs.algo;
 
-import edu.utd.dc.async.bfs.layered.constants.GlobalConstants;
-import edu.utd.dc.async.bfs.layered.io.file.ConfigFileReader;
+import edu.utd.dc.async.layered_bfs.constants.GlobalConstants;
+import edu.utd.dc.async.layered_bfs.io.file.ConfigFileReader;
 import edu.utd.dc.async.core.io.sharedmemory.SharedMemoryBus;
 import edu.utd.dc.common.constants.LogLevel;
 import edu.utd.dc.common.domain.support.ProcessId;

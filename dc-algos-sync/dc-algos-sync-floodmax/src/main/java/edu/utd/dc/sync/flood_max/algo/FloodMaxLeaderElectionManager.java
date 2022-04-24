@@ -1,4 +1,4 @@
-package edu.utd.dc.sync.flood_max.floodmax;
+package edu.utd.dc.sync.flood_max.algo;
 
 import edu.utd.dc.common.constants.LogLevel;
 import edu.utd.dc.common.domain.support.ProcessId;

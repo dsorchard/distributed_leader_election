@@ -1,4 +1,4 @@
-package edu.utd.dc.sync.flood_max.floodmax.domain.payload;
+package edu.utd.dc.sync.flood_max.algo.domain.payload;
 
 /** Leader announces it's ID using Terminate Payload. */
 public class TerminatePayload {

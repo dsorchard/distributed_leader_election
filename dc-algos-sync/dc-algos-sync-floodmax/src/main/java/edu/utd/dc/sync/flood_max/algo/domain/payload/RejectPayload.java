@@ -1,4 +1,4 @@
-package edu.utd.dc.sync.flood_max.floodmax.domain.payload;
+package edu.utd.dc.sync.flood_max.algo.domain.payload;
 
 /** If you get Reject from all your neighbours, then the node is a Leaf. */
 public class RejectPayload {

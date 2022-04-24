@@ -1,4 +1,4 @@
-package edu.utd.dc.async.bfs.layered.algo.domain.payload.ack;
+package edu.utd.dc.async.layered_bfs.algo.domain.payload.ack;
 
 /** If you get Reject from all your neighbours, then the node is a Leaf. */
 public class NAckPayload {

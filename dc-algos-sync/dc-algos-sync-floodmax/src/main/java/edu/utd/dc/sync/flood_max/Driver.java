@@ -1,6 +1,6 @@
 package edu.utd.dc.sync.flood_max;
 
-import edu.utd.dc.sync.flood_max.floodmax.FloodMaxLeaderElectionManager;
+import edu.utd.dc.sync.flood_max.algo.FloodMaxLeaderElectionManager;
 import edu.utd.dc.sync.flood_max.io.file.ConfigFileReader;
 
 public class Driver {
