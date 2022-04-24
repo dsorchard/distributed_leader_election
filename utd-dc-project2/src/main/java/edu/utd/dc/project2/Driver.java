@@ -16,7 +16,7 @@ public class Driver {
     int leaderId = layeredBFSManager.buildBFSTreeAndReturnLeader();
 
     // Print Leader
-    System.out.println(leaderId);
+    System.out.println("Leader Id : " + leaderId);
 
     // Print Telemetry
     MessageTelemetryUtils.print();
