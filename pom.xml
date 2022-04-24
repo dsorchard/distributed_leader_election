@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edu.utd.dc</groupId>
-    <artifactId>utd-dc-projects</artifactId>
+    <artifactId>dc-algos</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>utd-dc-project1</module>
-        <module>utd-dc-project2</module>
+        <module>synch-dc-algos</module>
+        <module>asynch-dc-algos</module>
     </modules>
 
     <properties>
