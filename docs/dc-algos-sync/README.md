@@ -30,7 +30,7 @@ row has 1 or more indices (indicating its neighbors) separated by white spaces.
 ```
 
 ### Sample Input Graph Structure
-![Graph](/docs/synch-dc-algos/imgs/floodmax_sample_input.png)
+![Graph](/docs/dc-algos-sync/imgs/floodmax_sample_input.png)
 
 ### Tasks
 
