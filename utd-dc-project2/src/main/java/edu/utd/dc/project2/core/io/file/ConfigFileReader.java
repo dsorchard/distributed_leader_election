@@ -54,6 +54,7 @@ public class ConfigFileReader {
             adjList.putIfAbsent(keyIdx, new ArrayList<>());
 
             for (int i = 0; i < tokens.length; i++) {
+              if (keyIdx == i) continue;
               if (tokens[i].equals("1")) adjList.get(keyIdx).add(i);
             }
 
