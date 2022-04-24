@@ -1,8 +1,11 @@
-package edu.utd.dc.project2.algo.bfs.layered;
+package edu.utd.dc.project2.algo.spanning_tree.bfs.layered;
 
-import edu.utd.dc.project2.algo.bfs.layered.domain.payload.*;
-import edu.utd.dc.project2.algo.bfs.layered.domain.payload.ack.NAckPayload;
-import edu.utd.dc.project2.algo.bfs.layered.domain.payload.ack.PAckPayload;
+import edu.utd.dc.project2.algo.spanning_tree.bfs.layered.domain.payload.ack.NAckPayload;
+import edu.utd.dc.project2.algo.spanning_tree.bfs.layered.domain.payload.ack.PAckPayload;
+import edu.utd.dc.project2.algo.spanning_tree.bfs.layered.domain.payload.IAmDonePayload;
+import edu.utd.dc.project2.algo.spanning_tree.bfs.layered.domain.payload.NewPhasePayload;
+import edu.utd.dc.project2.algo.spanning_tree.bfs.layered.domain.payload.SearchPayload;
+import edu.utd.dc.project2.algo.spanning_tree.bfs.layered.domain.payload.TerminatePayload;
 import edu.utd.dc.project2.constants.LogLevel;
 import edu.utd.dc.project2.core.ASyncProcess;
 import edu.utd.dc.project2.core.io.sharedmemory.domain.Message;

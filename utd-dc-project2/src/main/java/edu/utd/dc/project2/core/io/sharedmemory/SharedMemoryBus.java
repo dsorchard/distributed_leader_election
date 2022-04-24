@@ -36,7 +36,9 @@ public final class SharedMemoryBus {
    * @param message Message to be delivered
    */
   public static synchronized void send(ProcessId destinationId, Message message) {
+    // Used for logging message metrics. Better use AOP here.
     MessageTelemetryUtils.log(message.payload.getClass());
+
     ProcessId sourceId = message._source;
 
     for (Destination destination : map.get(sourceId))

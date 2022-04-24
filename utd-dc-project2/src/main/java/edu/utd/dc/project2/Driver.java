@@ -1,6 +1,6 @@
 package edu.utd.dc.project2;
 
-import edu.utd.dc.project2.algo.bfs.layered.LayeredBfsManager;
+import edu.utd.dc.project2.algo.spanning_tree.bfs.layered.LayeredBfsManager;
 import edu.utd.dc.project2.core.io.file.ConfigFileReader;
 import edu.utd.dc.project2.telemetry.MessageTelemetryUtils;
 
@@ -13,7 +13,7 @@ public class Driver {
 
     // Run FloodMax Leader Election Manager
     LayeredBfsManager layeredBFSManager = new LayeredBfsManager(configFileReader);
-    int leaderId = layeredBFSManager.buildBFSTree();
+    int leaderId = layeredBFSManager.buildBFSTreeAndReturnLeader();
 
     // Print Leader
     System.out.println(leaderId);

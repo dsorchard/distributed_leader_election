@@ -1,4 +1,4 @@
-package edu.utd.dc.project2.algo.bfs.layered.domain.payload;
+package edu.utd.dc.project2.algo.spanning_tree.bfs.layered.domain.payload;
 
 public class NewPhasePayload {
 

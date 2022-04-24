@@ -1,4 +1,4 @@
-package edu.utd.dc.project2.algo.bfs.layered;
+package edu.utd.dc.project2.algo.spanning_tree.bfs.layered;
 
 import edu.utd.dc.project2.constants.GlobalConstants;
 import edu.utd.dc.project2.constants.LogLevel;
@@ -27,7 +27,7 @@ public class LayeredBfsManager {
    *
    * @return max leader id.
    */
-  public int buildBFSTree() {
+  public int buildBFSTreeAndReturnLeader() {
     log(LogLevel.DEBUG, configFileReader.toString());
 
     int n = configFileReader.getSize();
