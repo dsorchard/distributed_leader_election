@@ -139,7 +139,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
 
   private synchronized void handleIAmDoneMessage(ProcessId source, IAmDonePayload payload) {
     this.iAmDoneProcessIdSet.add(source);
-    this.isNewNodeDiscovered = isNewNodeDiscovered || payload.isNewNodeDiscovered; // TODO:
+    this.isNewNodeDiscovered = isNewNodeDiscovered || payload.isNewNodeDiscovered;
 
     if (this.iAmDoneProcessIdSet.size() == getNeighbours().size()) {
       if (bfsTree.isRoot) {
@@ -151,7 +151,6 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
       }
 
       reset();
-      isNewNodeDiscovered = false; // TODO:
     }
   }
 
