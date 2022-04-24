@@ -12,14 +12,14 @@ import edu.utd.dc.project2.utils.RandomUtils;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LayeredBfsASyncProcess extends ASyncProcess {
 
   private final TreeNode<ProcessId> bfsTree;
-  private final Set<ProcessId> iAmDoneProcessIdSet;
-
-  private final Set<ProcessId> pAckProcessIdSet;
-  private final Set<ProcessId> nAckProcessIdSet;
+  private final Set<Integer> iAmDoneProcessIdSet;
+  private final Set<Integer> pAckProcessIdSet;
+  private final Set<Integer> nAckProcessIdSet;
 
   private int depthExplored;
   private int leaderId;
@@ -34,15 +34,11 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     this.leaderId = processId.getID();
     this.bfsTree = new TreeNode<>();
 
-    this.iAmDoneProcessIdSet = new HashSet<>();
-    this.pAckProcessIdSet = new HashSet<>();
-    this.nAckProcessIdSet = new HashSet<>();
+    this.iAmDoneProcessIdSet = ConcurrentHashMap.newKeySet();
+    this.pAckProcessIdSet = ConcurrentHashMap.newKeySet();
+    this.nAckProcessIdSet = ConcurrentHashMap.newKeySet();
 
     this.depthExplored = 0;
-  }
-
-  protected void handlePrePhase(int phaseNumber) {
-    this.iAmDoneProcessIdSet.clear();
   }
 
   @Override
@@ -89,15 +85,16 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
   private void handlePAckMessage(ProcessId source) {
     this.bfsTree.children.add(source);
 
-    this.pAckProcessIdSet.add(source);
+    this.pAckProcessIdSet.add(source.getID());
 
     if (pAckProcessIdSet.size() + nAckProcessIdSet.size() == getNeighbours().size()) {
+      this.isNewNodeDiscovered = !pAckProcessIdSet.isEmpty();
 
       if (bfsTree.isRoot) {
-        startNextPhase();
+        if (!isNewNodeDiscovered) terminate(getProcessId());
+        else startNextPhase();
       } else {
 
-        this.isNewNodeDiscovered = !pAckProcessIdSet.isEmpty();
         send(
             this.bfsTree.parentId,
             new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)),
@@ -110,15 +107,16 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
 
   // DONE
   private synchronized void handleNAckMessage(ProcessId source) {
-    this.nAckProcessIdSet.add(source);
+    this.nAckProcessIdSet.add(source.getID());
 
     if (pAckProcessIdSet.size() + nAckProcessIdSet.size() == getNeighbours().size()) {
+      this.isNewNodeDiscovered = !pAckProcessIdSet.isEmpty();
 
       if (bfsTree.isRoot) {
-        startNextPhase();
+        if (!isNewNodeDiscovered) terminate(getProcessId());
+        else startNextPhase();
       } else {
 
-        this.isNewNodeDiscovered = !pAckProcessIdSet.isEmpty();
         send(
             this.bfsTree.parentId,
             new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)),
@@ -138,7 +136,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
   }
 
   private synchronized void handleIAmDoneMessage(ProcessId source, IAmDonePayload payload) {
-    this.iAmDoneProcessIdSet.add(source);
+    this.iAmDoneProcessIdSet.add(source.getID());
     this.isNewNodeDiscovered = isNewNodeDiscovered || payload.isNewNodeDiscovered;
 
     if (this.iAmDoneProcessIdSet.size() == getNeighbours().size()) {
@@ -173,19 +171,19 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
       getNeighbours()
           .forEach(
               neighbour -> {
-                if (neighbour.getID() != source.getID())
-                  send(neighbour, new Message(getProcessId(), new SearchPayload()), delay);
+                // if (neighbour.getID() != source.getID())
+                send(neighbour, new Message(getProcessId(), new SearchPayload()), delay);
               });
 
     } else {
       getNeighbours()
           .forEach(
               neighbour -> {
-                if (neighbour.getID() != source.getID())
-                  send(
-                      neighbour,
-                      new Message(getProcessId(), new NewPhasePayload(payload.depth - 1)),
-                      delay);
+                // if (neighbour.getID() != source.getID())
+                send(
+                    neighbour,
+                    new Message(getProcessId(), new NewPhasePayload(payload.depth - 1)),
+                    delay);
               });
     }
   }

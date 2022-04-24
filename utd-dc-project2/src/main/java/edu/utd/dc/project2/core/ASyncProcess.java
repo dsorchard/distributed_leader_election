@@ -82,7 +82,9 @@ public abstract class ASyncProcess implements Listener, Runnable {
   }
 
   public void setTerminated(boolean terminated) {
+
     isTerminated = terminated;
+    syncNotify();
   }
 
   /** Pause using locks */
