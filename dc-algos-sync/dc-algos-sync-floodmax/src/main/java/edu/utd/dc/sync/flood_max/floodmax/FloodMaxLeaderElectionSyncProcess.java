@@ -5,6 +5,7 @@ import edu.utd.dc.common.domain.io.Message;
 import edu.utd.dc.common.domain.support.ProcessId;
 import edu.utd.dc.common.tree.TreeNode;
 import edu.utd.dc.sync.core.SyncProcess;
+import edu.utd.dc.sync.flood_max.constants.GlobalConstants;
 import edu.utd.dc.sync.flood_max.floodmax.domain.payload.IAmDonePayload;
 import edu.utd.dc.sync.flood_max.floodmax.domain.payload.RejectPayload;
 import edu.utd.dc.sync.flood_max.floodmax.domain.payload.SearchPayload;
@@ -193,5 +194,9 @@ public class FloodMaxLeaderElectionSyncProcess extends SyncProcess {
   /** Returns the current leader ID */
   public int getLeaderId() {
     return leaderId;
+  }
+
+  protected void log(LogLevel logLevel, String message) {
+    if (logLevel.getValue() >= GlobalConstants.LOG_LEVEL.getValue()) System.out.println(message);
   }
 }

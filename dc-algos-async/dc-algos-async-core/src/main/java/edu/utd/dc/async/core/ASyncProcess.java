@@ -1,7 +1,6 @@
 package edu.utd.dc.async.core;
 
 import edu.utd.dc.async.core.io.sharedmemory.SharedMemoryBus;
-import edu.utd.dc.common.constants.LogLevel;
 import edu.utd.dc.common.design_pattern.listener.Listener;
 import edu.utd.dc.common.domain.io.Message;
 import edu.utd.dc.common.domain.support.ProcessId;

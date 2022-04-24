@@ -4,9 +4,7 @@ import edu.utd.dc.common.constants.LogLevel;
 import edu.utd.dc.common.design_pattern.listener.Listener;
 import edu.utd.dc.common.domain.io.Message;
 import edu.utd.dc.common.domain.support.ProcessId;
-import edu.utd.dc.sync.flood_max.floodmax.FloodMaxLeaderElectionManager;
-import edu.utd.dc.sync.flood_max.constants.GlobalConstants;
-import edu.utd.dc.sync.flood_max.core.io.sharedmemory.SharedMemoryBus;
+import edu.utd.dc.sync.core.io.sharedmemory.SharedMemoryBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +38,6 @@ public abstract class SyncProcess implements Listener, Runnable {
     this.prevRoundReceivedMessages = new ArrayList<>();
   }
 
-  /**
-   * Invoked by the {@link FloodMaxLeaderElectionManager#electLeader()} after a fixed interval (Sync
-   * Clock).
-   */
   public void enableNextRound() {
     this.canStartRound = true;
 
@@ -134,9 +128,5 @@ public abstract class SyncProcess implements Listener, Runnable {
     synchronized (this) {
       notify();
     }
-  }
-
-  protected void log(LogLevel logLevel, String message) {
-    if (logLevel.getValue() >= GlobalConstants.LOG_LEVEL.getValue()) System.out.println(message);
   }
 }

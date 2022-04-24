@@ -4,7 +4,7 @@ import edu.utd.dc.common.constants.LogLevel;
 import edu.utd.dc.common.domain.support.ProcessId;
 import edu.utd.dc.common.utils.TimeUtils;
 import edu.utd.dc.sync.flood_max.constants.GlobalConstants;
-import edu.utd.dc.sync.flood_max.core.io.file.ConfigFileReader;
+import edu.utd.dc.sync.flood_max.io.file.ConfigFileReader;
 
 import java.util.List;
 import java.util.Map;
