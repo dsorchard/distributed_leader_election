@@ -10,8 +10,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>synch-dc-algos</module>
-        <module>asynch-dc-algos</module>
+        <module>dc-algos-common</module>
+        <module>dc-algos-async</module>
+        <module>dc-algos-sync</module>
     </modules>
 
     <properties>
