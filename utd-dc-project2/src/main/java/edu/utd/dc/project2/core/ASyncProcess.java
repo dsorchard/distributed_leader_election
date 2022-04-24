@@ -1,6 +1,5 @@
 package edu.utd.dc.project2.core;
 
-import edu.utd.dc.project2.algo.bfs.layered.LayeredBfsManager;
 import edu.utd.dc.project2.constants.GlobalConstants;
 import edu.utd.dc.project2.constants.LogLevel;
 import edu.utd.dc.project2.core.io.sharedmemory.Listener;
@@ -33,9 +32,7 @@ public abstract class ASyncProcess implements Listener, Runnable {
 
   @Override
   public void run() {
-    while (!isTerminated) {
-      syncWait();
-    }
+    while (!isTerminated) syncWait();
   }
 
   public abstract void initiate();
@@ -43,13 +40,12 @@ public abstract class ASyncProcess implements Listener, Runnable {
   protected abstract void handleIncoming(Message message);
 
   protected void send(ProcessId destinationId, Message message) {
-    int delay = 1; // RandomUtils.valueBetween(1, 12);
+    int delay = RandomUtils.valueBetween(1, 12);
     SharedMemoryBus.send(destinationId, message, delay);
   }
 
   @Override
   public void onReceive(Message message) {
-    syncNotify();
     this.handleIncoming(message);
   }
 
@@ -71,7 +67,6 @@ public abstract class ASyncProcess implements Listener, Runnable {
   }
 
   public void setTerminated(boolean terminated) {
-
     isTerminated = terminated;
     syncNotify();
   }

@@ -2,6 +2,7 @@ package edu.utd.dc.project2.core.io.sharedmemory;
 
 import edu.utd.dc.project2.core.io.sharedmemory.domain.Message;
 import edu.utd.dc.project2.core.support.ProcessId;
+import edu.utd.dc.project2.telemetry.MessageTelemetryUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +36,7 @@ public final class SharedMemoryBus {
    * @param message Message to be delivered
    */
   public static synchronized void send(ProcessId destinationId, Message message) {
+    MessageTelemetryUtils.log(message.payload.getClass());
     ProcessId sourceId = message._source;
 
     for (Destination destination : map.get(sourceId))

@@ -2,6 +2,7 @@ package edu.utd.dc.project2;
 
 import edu.utd.dc.project2.algo.bfs.layered.LayeredBfsManager;
 import edu.utd.dc.project2.core.io.file.ConfigFileReader;
+import edu.utd.dc.project2.telemetry.MessageTelemetryUtils;
 
 public class Driver {
 
@@ -16,5 +17,7 @@ public class Driver {
 
     // Print Leader
     System.out.println(leaderId);
+
+    MessageTelemetryUtils.print();
   }
 }
