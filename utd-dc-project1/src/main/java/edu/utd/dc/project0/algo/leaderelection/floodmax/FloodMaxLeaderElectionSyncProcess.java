@@ -140,7 +140,8 @@ public class FloodMaxLeaderElectionSyncProcess extends SyncProcess {
    *  1. add it to the iAmDone set.
    *  2. add the source as child in your bfs tree.
    *  if all the neighbours send an I AM Done
-   *    then send IAM Done to your parent as well.
+   *    if it is a root, then terminate
+   *    else send IAM Done to your parent as well.
    * </pre>
    */
   private synchronized void handleIAmDoneMessage(ProcessId source) {
