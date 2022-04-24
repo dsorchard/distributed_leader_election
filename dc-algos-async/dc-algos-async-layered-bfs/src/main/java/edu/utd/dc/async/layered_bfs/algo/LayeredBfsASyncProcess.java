@@ -127,7 +127,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     this.iAmDoneProcessIdSet.add(source.getID());
     this.isNewNodeDiscovered = isNewNodeDiscovered || payload.isNewNodeDiscovered;
 
-    if (this.iAmDoneProcessIdSet.size() == getNeighbours().size()) {
+    if (this.iAmDoneProcessIdSet.size() == bfsTree.children.size()) {
       if (bfsTree.isRoot) {
         if (!isNewNodeDiscovered) terminate(getProcessId());
         else startNextPhase();
@@ -167,19 +167,16 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
               });
 
     } else {
-      getNeighbours()
-          .forEach(
-              neighbour -> {
-                if (source.getID() == neighbour.getID()) {
-                  send(
-                      getProcessId(),
-                      new Message(source, new IAmDonePayload(false, source.getID())));
-                } else {
-                  send(
-                      neighbour,
-                      new Message(getProcessId(), new NewPhasePayload(payload.depth - 1)));
-                }
-              });
+
+      if (bfsTree.children.isEmpty()) {
+        send(source, new Message(getProcessId(), new IAmDonePayload(false, leaderId)));
+      } else {
+        bfsTree.children.forEach(
+            neighbour ->
+                send(
+                    neighbour,
+                    new Message(getProcessId(), new NewPhasePayload(payload.depth - 1))));
+      }
     }
   }
 
