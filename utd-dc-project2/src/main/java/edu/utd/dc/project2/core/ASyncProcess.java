@@ -31,15 +31,6 @@ public abstract class ASyncProcess implements Listener, Runnable {
     this.processId = processId;
   }
 
-  /**
-   * Invoked by the {@link LayeredBfsManager#buildBFSTree()} after a fixed interval (Sync Clock).
-   */
-
-  /**
-   * Endless while loop util terminated. If you can start a new round, it invokes {@link
-   * #handleOutgoing()} and then goes to {@link #syncWait()}. It will be in wait state untill {@link
-   * #syncNotify()} is invoked from the {@link #canStartNextPhase}.
-   */
   @Override
   public void run() {
     while (!isTerminated) {
@@ -52,7 +43,7 @@ public abstract class ASyncProcess implements Listener, Runnable {
   protected abstract void handleIncoming(Message message);
 
   protected void send(ProcessId destinationId, Message message) {
-    int delay = RandomUtils.valueBetween(1, 12);
+    int delay = 1; // RandomUtils.valueBetween(1, 12);
     SharedMemoryBus.send(destinationId, message, delay);
   }
 

@@ -79,30 +79,17 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
   // DONE
   private void handlePAckMessage(ProcessId source) {
     this.bfsTree.children.add(source);
-
     this.pAckProcessIdSet.add(source.getID());
-
-    if (pAckProcessIdSet.size() + nAckProcessIdSet.size() == getNeighbours().size()) {
-      this.isNewNodeDiscovered = !pAckProcessIdSet.isEmpty();
-
-      if (bfsTree.isRoot) {
-        if (!isNewNodeDiscovered) terminate(getProcessId());
-        else startNextPhase();
-      } else {
-
-        send(
-            this.bfsTree.parentId,
-            new Message(getProcessId(), new IAmDonePayload(isNewNodeDiscovered)));
-      }
-
-      reset();
-    }
+    handleAckMessage();
   }
 
   // DONE
   private synchronized void handleNAckMessage(ProcessId source) {
     this.nAckProcessIdSet.add(source.getID());
+    handleAckMessage();
+  }
 
+  private void handleAckMessage() {
     if (pAckProcessIdSet.size() + nAckProcessIdSet.size() == getNeighbours().size()) {
       this.isNewNodeDiscovered = !pAckProcessIdSet.isEmpty();
 
@@ -161,15 +148,27 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     if (payload.depth == 0) {
 
       getNeighbours()
-          .forEach(neighbour -> send(neighbour, new Message(getProcessId(), new SearchPayload())));
+          .forEach(
+              neighbour -> {
+                if (source.getID() == neighbour.getID()) {
+                  nAckProcessIdSet.add(source.getID());
+                } else {
+                  send(neighbour, new Message(getProcessId(), new SearchPayload()));
+                }
+              });
 
     } else {
       getNeighbours()
           .forEach(
-              neighbour ->
+              neighbour -> {
+                if (source.getID() == neighbour.getID()) {
+                  iAmDoneProcessIdSet.add(source.getID());
+                } else {
                   send(
                       neighbour,
-                      new Message(getProcessId(), new NewPhasePayload(payload.depth - 1))));
+                      new Message(getProcessId(), new NewPhasePayload(payload.depth - 1)));
+                }
+              });
     }
   }
 
