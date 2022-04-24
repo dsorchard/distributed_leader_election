@@ -88,6 +88,9 @@ This information is used to build the layer 1, of our tree.
 - When root receives all the ACK messages, it goes to the next phase.
 - in the subsequent phases k, the root sends `NewPhaseMessage`. The message goes through the `bfs tree` children 
 util the depth k is reached.
+
+[//]: # (  Need to verify how Messages reaches the depth k. is it using BFS tree or simple broadcast.
+At present, we are using broadcast.)
 - Upon reaching the depth k, it sends `Search Message` to explore the next layer.
 - If the neighbour already has the bfs tree parent assigned, it responds with a `NACK`.
 - If the neighbours bfs tree parent is not assigned, it response with `PACK`.
