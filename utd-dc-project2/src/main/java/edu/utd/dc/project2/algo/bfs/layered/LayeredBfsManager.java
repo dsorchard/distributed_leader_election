@@ -41,8 +41,7 @@ public class LayeredBfsManager {
     }
 
     int root = configFileReader.getRoot();
-    layeredBfsProcesses[root].initiate(); // TODO Check if this will get called.
-
+    layeredBfsProcesses[root].initiate();
     while (true) {
 
       TimeUtils.sleep(500);

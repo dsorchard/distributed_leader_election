@@ -221,6 +221,8 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
         .filter(child -> child.getID() != source.getID())
         .forEach(child -> send(child, new Message(getProcessId(), new TerminatePayload(leaderId))));
 
+    System.out.println(
+        "Output : " + "Process ID = " + getProcessId().getID() + " Children = " + bfsTree.children);
     setTerminated(true);
   }
 
