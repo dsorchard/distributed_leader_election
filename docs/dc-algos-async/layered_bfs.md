@@ -98,6 +98,7 @@ implemented to make PriorityQueue min heap based on `exitTs`.
 - tick() : Here the communication channel is having rounds. `tick()` is called, at a period set in the Main thread.
 Upon tick invoke, we do the priority queue check to see if any message satisfies the processing criteria. The round()
 here helps in simplifying things.
+- Note that, here we are simulating a partially synchrounous system, rather than a fully async network. This is done to simplify debugging in our projects. Here the time delay is predictable, ie between 1 & 12 units. In a ideal, async network, you have no clue when the message would come.
 
 #### 3. Layered BFS Algorithm:
 
