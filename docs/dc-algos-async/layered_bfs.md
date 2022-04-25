@@ -36,6 +36,25 @@ Your program will read in the following information in this order from an input 
 ### Sample Input Graph Structure
 ![Graph](/docs/dc-algos-async/imgs/layered_bfs_sample_input.png)
 
+### Sample Output File
+Note, that in the diagram above, we are using 1 base index. In the output, we are using 0 based index.
+
+```text
+Output : Process ID = 0 Children = [ProcessId{id=2}, ProcessId{id=1}]
+Output : Process ID = 1 Children = [ProcessId{id=4}, ProcessId{id=3}]
+Output : Process ID = 2 Children = [ProcessId{id=5}, ProcessId{id=6}]
+Output : Process ID = 6 Children = []
+Output : Process ID = 5 Children = []
+Output : Process ID = 3 Children = [ProcessId{id=7}]
+Output : Process ID = 4 Children = [ProcessId{id=8}]
+Output : Process ID = 7 Children = []
+Output : Process ID = 8 Children = []
+Leader Id : 8
+{PAckPayload=8, TerminatePayload=8, SearchPayload=8, IAmDonePayload=16, NAckPayload=8, NewPhasePayload=16}
+```
+
+
+
 ### Working
 
 The code base contains 3 main sections.
