@@ -36,7 +36,7 @@ Your program will read in the following information in this order from an input 
 ### Sample Input Graph Structure
 ![Graph](/docs/dc-algos-async/imgs/layered_bfs_sample_input.png)
 
-### Sample Output File
+### Sample Output
 Note, that in the diagram above, we are using 1 base index. In the output, we are using 0 based index.
 
 ```text
