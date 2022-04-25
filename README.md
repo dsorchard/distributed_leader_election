@@ -2,12 +2,14 @@
 
 Collection of `CS6380 : Distributed Computing` algorithms.
 
-## DC Algos Sync
+## dc-algos-sync
 
-Contains 
 1. [Flood Max algorithm](docs/dc-algos-sync/flood_max.md) to elect largest processId as leader & create BFS Tree in a `Synchronous System`.
 
-## DC Algos ASync
-
-Contains 
+## dc-algos-async
+ 
 1. [Layered BFS algorithm](docs/dc-algos-async/layered_bfs.md) to create BFS Tree & elected largest processId as leader in `Asynchronous System`.
+
+## dc-algos-common
+
+Contains common utils & classes used by both `async` & `sync` systems.
