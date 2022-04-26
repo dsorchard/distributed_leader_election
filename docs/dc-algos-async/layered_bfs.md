@@ -71,13 +71,13 @@ doing things, similar to a running `Synchronous algorithm` on top of `Synchroniz
 ```java
   @Override
   public void run() {
-        while (!isTerminated) syncWait();
+      while (!isTerminated) syncWait();
   }
 
-    public void setTerminated(boolean terminated) {
-        isTerminated = terminated;
-        syncNotify();
-    }
+  public void setTerminated(boolean terminated) {
+      isTerminated = terminated;
+      syncNotify();
+  }
 ```
 We will be waiting, until any update to isTerminated occurs. That update, will happen only via `setTerminated()`.
 So that is the only place where we use `syncNotify()`.
@@ -95,9 +95,10 @@ loop to check this condition, to ensure that every message with the criteria is 
 - `DelayedMessage`: This class is a wrapper for the original messages, which needs to be delayed. Here we have an
 extra parameter called `exitTs` which keeps track of the time when we should process the message. Comparable is
 implemented to make PriorityQueue min heap based on `exitTs`.
-- tick() : Here the communication channel is having rounds. ticks() is called, at a period set in the Main thread.
+- tick() : Here the communication channel is having rounds. `tick()` is called, at a period set in the Main thread.
 Upon tick invoke, we do the priority queue check to see if any message satisfies the processing criteria. The round()
 here helps in simplifying things.
+- Note that, here we are simulating a partially synchrounous system, rather than a fully async network. This is done to simplify debugging in our projects. Here the time delay is predictable, ie between 1 & 12 units. In a ideal, async network, you have no clue when the message would come.
 
 #### 3. Layered BFS Algorithm:
 
