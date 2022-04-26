@@ -23,7 +23,7 @@ public class LayeredBfsManager {
   }
 
   /**
-   * Spins up N threads, executed FloodMaxLeader Election and return maxId.
+   * Spins up N threads, executed Layered BFS Tree Election and return maxId.
    *
    * @return max leader id.
    */

@@ -14,8 +14,10 @@ import java.util.concurrent.PriorityBlockingQueue;
 /** Singleton class responsible for handling messages in the network. */
 public class SharedMemoryBus {
 
+  // Used for maintaining the current timestamp (relative) w.r.t channel.
   static int scalarClock = 1;
 
+  // Using Blocking Priority Queue, as we will have multiple concurrent inserts.
   static PriorityBlockingQueue<DelayedMessage> pq = new PriorityBlockingQueue<>();
   public static Map<ProcessId, List<Destination>> map = new ConcurrentHashMap<>();
 
@@ -48,15 +50,24 @@ public class SharedMemoryBus {
       if (destination.destinationId == destinationId) destination.client.onReceive(message);
   }
 
+  /**
+   * This function inserts message to the PQ rather than sending it directly. The PQ then introduces
+   * a notion of delay by continous polling to simulate partially synchronous system.
+   */
   public static synchronized void send(ProcessId destinationId, Message message, int delay) {
     pq.add(new DelayedMessage(destinationId, message, scalarClock + delay));
   }
 
+  /** The function invoked periodically from the driver. This ensure partial synchrony. */
   public static void tick() {
     scalarClock++;
     onTick();
   }
 
+  /**
+   * Upon a new tick, we will loop through the priority queue and check the topmost elements and see
+   * if the timestamp matches.
+   */
   private static void onTick() {
     while (!pq.isEmpty() && scalarClock >= pq.peek().exitTs) {
       send(pq.peek().destinationId, pq.peek().message);
@@ -75,6 +86,11 @@ public class SharedMemoryBus {
     }
   }
 
+  /**
+   * Delayed Message wrapper is used to wrap the original message and introduce a delay. This
+   * message when it is inserted into the PriorityQueue will give a notion of delay using continous
+   * periodic polling and checking agains the exitTs (exit Timestamp) value.
+   */
   public static class DelayedMessage implements Comparable<DelayedMessage> {
     ProcessId destinationId;
     Message message;

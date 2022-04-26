@@ -61,7 +61,11 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     }
   }
 
-  // DONE
+  /**
+   * Called by one process to start the algorithm.
+   *
+   * <p>In our current algo, in phase 1: we send search message to every neighbour.
+   */
   @Override
   public void initiate() {
     this.bfsTree.isRoot = true;
@@ -70,7 +74,10 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
         .forEach(neighbour -> send(neighbour, new Message(getProcessId(), new SearchPayload())));
   }
 
-  // DONE
+  /**
+   * Search message to neighbour either gets a response of NACK (if parent is set) or PACK (if
+   * parent is not set).
+   */
   private void handleSearchMessage(ProcessId source) {
 
     if (!bfsTree.isRoot && bfsTree.parentId == null) {
@@ -81,19 +88,28 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     }
   }
 
-  // DONE
+  /** PACK is used by the reciever to mark it as child. */
   private void handlePAckMessage(ProcessId source) {
     this.bfsTree.children.add(source);
     this.pAckProcessIdSet.add(source.getID());
     handleAckMessage(source);
   }
 
-  // DONE
+  /** NACK is just used for maintaining the count. */
   private void handleNAckMessage(ProcessId source) {
     this.nAckProcessIdSet.add(source.getID());
     handleAckMessage(source);
   }
 
+  /**
+   * Any ACK message when received is checked with the following condition:
+   *
+   * <p>Did I receive ack (NACK or PACK) from all the neighbours? If I am root, and I didn't find a
+   * new neighbour in this phase, terminate. Else if I am root, and I found a new neighbour, go to
+   * next phase. If I am not root, convergecast with IAM done message to the parent.
+   *
+   * <p>Either way, clear my state after I am done recieving the ACK from all my children.
+   */
   private void handleAckMessage(ProcessId source) {
     this.leaderId = Math.max(leaderId, source.getID());
 
@@ -113,6 +129,7 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     }
   }
 
+  /** Resets PACK, NACK & IAM Done counters. NewNode flag is also reset. */
   private void resetStateVariables() {
     pAckProcessIdSet.clear();
     nAckProcessIdSet.clear();
@@ -121,6 +138,14 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     isNewNodeDiscovered = false;
   }
 
+  /**
+   * On convergecast, If I recieve all the IAM done messages, I will either terminate (if I a root
+   * and condition met) or send I AM done to my parent.
+   *
+   * <p>When I collect all my child IAM done messages, I check if any one got a new neighbour (using
+   * flag) & also, update my leader id with the max process id received so far. The following
+   * knowledge is send to my parent.
+   */
   private void handleIAmDoneMessage(ProcessId source, IAmDonePayload payload) {
     this.leaderId = Math.max(leaderId, payload.maxProcessId);
 
@@ -141,6 +166,10 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
     }
   }
 
+  /**
+   * When I have a new neighbour discovered in the previous phase, I send out a new phase message
+   * from the root.
+   */
   private void startNextPhase() {
     this.depthExplored++;
 
@@ -152,6 +181,18 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
                     new Message(getProcessId(), new NewPhasePayload(this.depthExplored - 1))));
   }
 
+  /**
+   * A new phase message is propogated to the k (discovered) depth (we are decrementing the depth
+   * inside the message). Upon reaching the k'th depth, we send a search message to explore the
+   * children.
+   *
+   * <p>NOTE 1: To make things simple (handling : neighbour count for root vs neighbour cout for
+   * other node without source) we are simulating a recieved NACK message from the source. We are
+   * not sending New Phase to the source, but we are simulating that, we will recieved a NACK
+   * message from sender to avoid complications with neighbour count check.
+   *
+   * <p>NOTE 2: We are sending NewPhase via BFS tree created so far.
+   */
   private void handleNewPhaseMessage(ProcessId source, NewPhasePayload payload) {
 
     if (payload.depth == 0) {
@@ -160,6 +201,8 @@ public class LayeredBfsASyncProcess extends ASyncProcess {
           .forEach(
               neighbour -> {
                 if (source.getID() == neighbour.getID()) {
+
+                  // Simulating NACK message from source to simiplify neighbour count check.
                   send(getProcessId(), new Message(source, new NAckPayload()));
                 } else {
                   send(neighbour, new Message(getProcessId(), new SearchPayload()));
