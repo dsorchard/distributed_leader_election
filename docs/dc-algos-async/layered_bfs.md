@@ -139,23 +139,23 @@ Layered BFS builds BFS Tree in Asynchronous general network. The algo is as foll
 ```java
     // Initiate algorithm from root.
     int root=configFileReader.getRoot();
-            LayeredBfsASyncProcess rootProcess=layeredBfsProcesses[root];
-            rootProcess.initiate();
+    LayeredBfsASyncProcess rootProcess=layeredBfsProcesses[root];
+    rootProcess.initiate();
 
-            // Endless while loop
-            while(true){
+    // Endless while loop
+    while(true){
 
-            TimeUtils.sleep(500);
+        TimeUtils.sleep(500);
+    
+        // Termination check, if no threads are alive, then terminate
+        if(isAllThreadsDead(threads)){
+          log(LogLevel.DEBUG,"Layered BFS completed");
+          break;
+        }
+    
+        // Tick
+        SharedMemoryBus.tick();
+    }
 
-            // Termination check, if no threads are alive, then terminate
-            if(isAllThreadsDead(threads)){
-            log(LogLevel.DEBUG,"Layered BFS completed");
-            break;
-            }
-
-            // Tick
-            SharedMemoryBus.tick();
-            }
-
-            return rootProcess.getLeaderId();
+    return rootProcess.getLeaderId();
 ```
